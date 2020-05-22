@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from .manager import CustomUserManager
+import uuid
 
 
 class User(AbstractUser):
@@ -13,6 +14,8 @@ class User(AbstractUser):
     securityQuestion = models.CharField(null=True, blank=True, max_length=150)
     securityAnswer = models.CharField(max_length=50)
     termsAccepted = models.BooleanField(default=0)
+    # jwt_secret = models.UUIDField(default=uuid.uuid4)
+
     REQUIRED_FIELDS = ['CCCNo', 'securityQuestion', 'securityAnswer', 'termsAccepted']
     USERNAME_FIELD = 'msisdn'
 
@@ -23,3 +26,16 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "User"
+
+
+class Dependants(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    heiNumber = models.CharField(max_length=20, blank=False)
+    dob = models.DateField(blank=True, null=True)
+    approved = models.BooleanField(default=0)
+
+    class Meta:
+        db_table = "Dependants"
+#
+# def jwt_get_secret_key(user_model):
+#     return user_model.jwt_secret
