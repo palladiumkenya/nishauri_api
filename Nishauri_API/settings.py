@@ -87,12 +87,12 @@ WSGI_APPLICATION = 'Nishauri_API.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'NiShauri',
-        'USER': 'postgres',
-        'PASSWORD': 'NC`{}?!lmn45',
+        'USER': 'mlab',
+        'PASSWORD': 'Mlab1234',
         'HOST': '192.168.0.7',   # Or an IP Address that your DB is hosted on
-        'PORT': '2210',
+        'PORT': '3307',
     }
 }
 # DATABASES = {
