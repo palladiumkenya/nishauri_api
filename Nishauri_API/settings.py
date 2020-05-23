@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'Nishauri_API.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'NiShauri',
+        'NAME': 'Nishauri',
         'USER': 'mlab',
         'PASSWORD': 'Mlab1234',
         'HOST': '192.168.0.7',   # Or an IP Address that your DB is hosted on
