@@ -91,7 +91,7 @@ DATABASES = {
         'NAME': 'NiShauri',
         'USER': 'postgres',
         'PASSWORD': 'NC`{}?!lmn45',
-        'HOST': '197.232.36.170',   # Or an IP Address that your DB is hosted on
+        'HOST': '192.168.0.7',   # Or an IP Address that your DB is hosted on
         'PORT': '2210',
     }
 }
