@@ -86,13 +86,13 @@ WSGI_APPLICATION = 'Nishauri_API.wsgi.application'
 # CORS_ORIGIN_WHITELIST = ['*']
 
 DATABASES = {
-   'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'NiShauri',
-        'USER': 'postgres',
-        'PASSWORD': 'NC`{}?!lmn45',
-        'HOST': '197.248.10.20',
-        'PORT': '',
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'Nishauri',
+        'USER': 'mlab',
+        'PASSWORD': 'Mlab1234',
+        'HOST': '192.168.0.7',   # Or an IP Address that your DB is hosted on
+        'PORT': '3307',
     }
 }
 # DATABASES = {
