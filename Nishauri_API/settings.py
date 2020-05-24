@@ -26,7 +26,7 @@ SECRET_KEY = '=$b1)&zl*cdjuz=_hxb8#u%!pd^mu^tng&6z+jl38(0egfx#fu'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['197.232.36.170']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -87,12 +87,12 @@ WSGI_APPLICATION = 'Nishauri_API.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Nishauri',
-        'USER': 'mlab',
-        'PASSWORD': 'Mlab1234',
-        'HOST': '192.168.0.7',   # Or an IP Address that your DB is hosted on
-        'PORT': '3307',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'NiShauri',
+        'USER': 'postgres',
+        'PASSWORD': 'NC`{}?!lmn45',
+        'HOST': '197.232.36.170',   # Or an IP Address that your DB is hosted on
+        'PORT': '2210',
     }
 }
 # DATABASES = {
