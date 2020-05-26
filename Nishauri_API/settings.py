@@ -83,16 +83,16 @@ WSGI_APPLICATION = 'Nishauri_API.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-# CORS_ORIGIN_WHITELIST = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
 
 DATABASES = {
-    'default': {
+     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'NiShauri',
-        'USER': 'postgres',
-        'PASSWORD': 'NC`{}?!lmn45',
-        'HOST': '197.232.36.170',   # Or an IP Address that your DB is hosted on
-        'PORT': '2210',
+        'NAME': os.environ.get('DB_NAME','NiShauri'),
+        'USER': os.environ.get('DB_USER','postgres'),
+        'PASSWORD': os.environ.get('DB_PASS','postgres'),
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 # DATABASES = {
@@ -105,7 +105,7 @@ DATABASES = {
 # rest Framework config
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+#        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
