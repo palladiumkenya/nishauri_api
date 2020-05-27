@@ -1,1 +1,0 @@
-worker: gunicorn Nishauri_API.wsgi --log-file -
