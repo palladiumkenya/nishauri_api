@@ -32,8 +32,8 @@ class User(AbstractUser):
 
 
 class Dependants(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    heiNumber = models.CharField(max_length=20, blank=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    heiNumber = models.CharField(max_length=20, blank=False, unique=True)
     dob = models.DateField(blank=True, null=True)
     approved = models.BooleanField(default=0)
 
