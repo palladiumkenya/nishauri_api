@@ -47,6 +47,8 @@ class UserSerializer(serializers.ModelSerializer):
         }
         response = requests.post(url, data=user, json=headers)
         boo = response.headers
+        datas = response.json()
+        print(datas)
         if boo['Content-Length'] != '0':
             return value
         else:
