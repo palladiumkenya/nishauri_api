@@ -1,3 +1,4 @@
+import requests
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -48,7 +49,6 @@ class UserProfileListCreateView(ListCreateAPIView):
 def depend(request):
     if request.method == 'POST':
         serializer = DependantSerializer(data=request.data)
-        # serializer.initial_data.update({"user": request.user.id})
         serializer.user = request.user
         try:
             if serializer.is_valid():
@@ -68,7 +68,9 @@ def depend(request):
 @api_view(['POST'])
 def signup(request):
     if request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
+        data_copy = request.data.copy()
+        data_copy.update({"first_name": "N/A"})
+        serializer = UserSerializer(data=data_copy)
         if not serializer.is_valid():
             return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         if serializer.initial_data['password'] != serializer.initial_data['re_password']:
@@ -76,17 +78,17 @@ def signup(request):
         try:
             if serializer.is_valid():
                 serializer.save()
-                return Response({"success": True, "data": {"user": "User Created"}}, status=status.HTTP_201_CREATED)
+                return Response({"success": True, 
+                                 "data": {
+                                     "user": "User Created", 
+                                     "f_name": serializer.data['first_name']
+                                 }},
+                                status=status.HTTP_201_CREATED)
             else:
                 return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
             return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-    # if request.method == "GET":
-    #     queryset = Dependants.objects.filter(user=request.user.id)
-    #     serializer = DependantSerializer(queryset, many=True)
-    #     return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
-
 
 
 # class UserLogoutAllView(views.APIView):

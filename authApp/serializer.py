@@ -47,13 +47,15 @@ class UserSerializer(serializers.ModelSerializer):
         }
         response = requests.post(url, data=user, json=headers)
         boo = response.headers
-        datas = response.json()
-        print(datas)
         if boo['Content-Length'] != '0':
             return value
         else:
             raise serializers.ValidationError("CCC number not found")
         # return boo
+
+    # def validate_first_name(self, value):
+    #     print(value)
+    #     return value
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
