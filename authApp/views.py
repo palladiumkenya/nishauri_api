@@ -57,12 +57,36 @@ def depend(request):
             else:
                 return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print("s")
             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
     if request.method == "GET":
         queryset = Dependants.objects.filter(user=request.user.id)
         serializer = DependantSerializer(queryset, many=True)
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+def signup(request):
+    if request.method == 'POST':
+        serializer = UserSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.initial_data['password'] != serializer.initial_data['re_password']:
+            raise serializers.ValidationError("Passwords don't match")
+        try:
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"success": True, "data": {"user": "User Created"}}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    # if request.method == "GET":
+    #     queryset = Dependants.objects.filter(user=request.user.id)
+    #     serializer = DependantSerializer(queryset, many=True)
+    #     return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
+
 
 
 # class UserLogoutAllView(views.APIView):

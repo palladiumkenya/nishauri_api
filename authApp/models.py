@@ -12,7 +12,7 @@ class User(AbstractUser):
     msisdn = models.CharField(max_length=15, unique=True)
     CCCNo = models.CharField(max_length=15, unique=True)
     securityQuestion = models.CharField(null=True, blank=True, max_length=150)
-    securityAnswer = models.CharField(max_length=50)
+    securityAnswer = models.CharField(max_length=250)
     termsAccepted = models.BooleanField(default=0)
     # jwt_secret = models.UUIDField(default=uuid.uuid4)
 

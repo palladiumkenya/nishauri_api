@@ -11,6 +11,7 @@ urlpatterns = [
     path('auth/login', CustomTokenObtainPairView.as_view(), name='custom_token_obtain_pair'),
     url('users/all', views.UserProfileListCreateView.as_view(), name="all-profiles"),
     url('dependants/', views.depend, name="dependants"),
+    url('signup/', views.signup, name="signup")
     # url('depandants/', views.UserProfileListCreateView.as_view(), name="all-profiles"),
     # path(r'user/logout/', views.UserLogoutAllView.as_view(), name='user-logout-all'),
 ]
