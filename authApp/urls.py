@@ -10,6 +10,7 @@ urlpatterns = [
     path('auth/us', views.restricted),
     path('auth/login', CustomTokenObtainPairView.as_view(), name='custom_token_obtain_pair'),
     url('users/all', views.UserProfileListCreateView.as_view(), name="all-profiles"),
+    url('user/auth', views.get_auth_user, name="auth-profile"),
     url('dependants/', views.depend, name="dependants"),
     url('signup/', views.signup, name="signup")
     # url('depandants/', views.UserProfileListCreateView.as_view(), name="all-profiles"),

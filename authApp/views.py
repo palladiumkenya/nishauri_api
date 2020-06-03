@@ -91,6 +91,14 @@ def signup(request):
             return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def get_auth_user(request):
+    if request.method == 'GET':
+        queryset = User.objects.filter(id=request.user.id)
+        serializer = UserProfileSerializer(queryset, many=True)
+        return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
+
 # class UserLogoutAllView(views.APIView):
 #     """
 #     Use this endpoint to log out all sessions for a given user.

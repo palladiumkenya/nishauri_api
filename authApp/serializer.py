@@ -13,7 +13,7 @@ class UserCreateSerializer(UserCreateSerializer):
         model = User
         fields = ['id', 'msisdn', 'password', 'CCCNo', 'securityQuestion', 'securityAnswer', 'termsAccepted']
 
-
+n = ''
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -47,15 +47,16 @@ class UserSerializer(serializers.ModelSerializer):
         }
         response = requests.post(url, data=user, json=headers)
         boo = response.headers
+        global n
+        n = response.json()['f_name']
         if boo['Content-Length'] != '0':
             return value
         else:
             raise serializers.ValidationError("CCC number not found")
-        # return boo
 
-    # def validate_first_name(self, value):
-    #     print(value)
-    #     return value
+    def validate_first_name(self, value):
+        value = n
+        return value
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -63,8 +64,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'last_login', 'first_name', 'last_name', 'email', 'is_active', 'date_joined', 'msisdn', 'CCCNo',
-                  'termsAccepted', 'groups', 'user_permissions', 'user']
+        fields = ['id', 'last_login', 'first_name', 'last_name', 'msisdn', 'CCCNo',
+                  'termsAccepted', 'groups', 'user_permissions', 'email', 'is_active', 'date_joined', 'user']
 
 
 class DependantSerializer(serializers.ModelSerializer):
