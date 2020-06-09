@@ -40,8 +40,6 @@ class Dependants(models.Model):
     heiNumber = models.CharField(max_length=20, blank=False, unique=True)
     dob = models.DateField(blank=True, null=True)
     approved = models.BooleanField(default=0)
-    # created_at = models.DateTimeField(default=timezone.now)
-    # updated_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "Dependants"

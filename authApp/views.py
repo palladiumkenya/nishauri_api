@@ -1,3 +1,8 @@
+import datetime
+from datetime import date
+from datetime import datetime
+from dateutil import relativedelta
+
 import requests
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
@@ -48,8 +53,11 @@ class UserProfileListCreateView(ListCreateAPIView):
 @permission_classes([IsAuthenticated])
 def depend(request):
     if request.method == 'POST':
-        serializer = DependantSerializer(data=request.data)
+        data_copy = request.data.copy()
+        data_copy.update({"user": request.user.id})
+        serializer = DependantSerializer(data=data_copy)
         serializer.user = request.user
+        print(serializer.is_valid())
         try:
             if serializer.is_valid():
                 serializer.save()
@@ -57,10 +65,19 @@ def depend(request):
             else:
                 return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print(e)
             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
     if request.method == "GET":
         queryset = Dependants.objects.filter(user=request.user.id)
         serializer = DependantSerializer(queryset, many=True)
+        today = date.today()
+        for d in serializer.data:
+            dob = d["dob"]
+            date1 = datetime.strptime(str(dob), '%Y-%m-%d')
+            date2 = datetime.strptime(str(today), '%Y-%m-%d')
+            r = relativedelta.relativedelta(date2, date1)
+            months_difference = r.months + (12 * r.years)
+            d["dob"] = months_difference
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -69,7 +86,7 @@ def depend(request):
 def signup(request):
     if request.method == 'POST':
         data_copy = request.data.copy()
-        data_copy.update({"first_name": "N/A"})
+        data_copy.update({"first_name": check_ccc(request.data['CCCNo'])})
         serializer = UserSerializer(data=data_copy)
         if not serializer.is_valid():
             return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -88,7 +105,22 @@ def signup(request):
                 return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
-            return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": False, "error": [serializer.errors, str(e)]}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def check_ccc(value):
+    user = {
+        "mfl_code": value[:5],
+        "ccc_number": value
+    }
+
+    url = "http://ushaurinode.mhealthkenya.org/api/mlab/check/consent"
+    headers = {
+        'content-type': "application/json",
+        'Accept': 'application/json'
+    }
+    response = requests.post(url, data=user, json=headers)
+    return response.json()["f_name"]
 
 
 @permission_classes([IsAuthenticated])

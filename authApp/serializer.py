@@ -55,7 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("CCC number not found")
 
     def validate_first_name(self, value):
-        value = n
+        print(value)
         return value
 
 
