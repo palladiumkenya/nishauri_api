@@ -1,8 +1,14 @@
 from rest_framework import serializers
-from labResults.models import LabResult
+from labResults.models import *
 
 
-class LabSerializer(serializers.ModelSerializer):
+class VLSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LabResult
+        model = VLResult
+        fields = '__all__'
+
+
+class EidSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EidResults
         fields = '__all__'
