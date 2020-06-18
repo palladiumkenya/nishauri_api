@@ -16,22 +16,25 @@ def get_vload(request):
         c = check_lab(request.user.CCCNo)
         if c == {'message': 'No results for the given CCC Number were found'}:
             return Response(data={'message': 'No results for the given CCC Number were found'}, status=status.HTTP_204_NO_CONTENT)
-        r = VLResult.objects.filter(r_id=c["results"][0]["id"])
-        if r.count() == 0:
-            data = VLResult()
-            data.user = request.user
-            data.r_id = c["results"][0]["id"]
-            data.result_type = c["results"][0]["result_type"]
-            try:
-                data.result_content = int(c["results"][0]["result_content"])
-            except ValueError:
-                data.result_content = c["results"][0]["result_content"][:-9]
-            data.date_collected = c["results"][0]["date_collected"]
-            data.lab_name = c["results"][0]["lab_name"]
-            data.save()
-        r = VLResult.objects.filter(r_id=c["results"][0]["id"], result_type="1")
-        serializer = VLSerializer(r, many=True)
-        return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
+        li=[]
+        for it in range(len(c["results"])):
+            r = VLResult.objects.filter(r_id=c["results"][it]["id"])
+            if r.count() == 0:
+                data = VLResult()
+                data.user = request.user
+                data.r_id = c["results"][it]["id"]
+                data.result_type = c["results"][it]["result_type"]
+                try:
+                    data.result_content = int(c["results"][it]["result_content"])
+                except ValueError:
+                    data.result_content = c["results"][it]["result_content"][:-9]
+                data.date_collected = c["results"][0]["date_collected"]
+                data.lab_name = c["results"][it]["lab_name"]
+                data.save()
+            r = VLResult.objects.filter(r_id=c["results"][it]["id"], result_type="1")
+            serializer = VLSerializer(r, many=True)
+            li.append(serializer.data[0])
+        return Response(data={"data": li}, status=status.HTTP_200_OK)
 
 
 @permission_classes([IsAuthenticated])
@@ -40,13 +43,16 @@ def get_eid(request):
     if request.method == 'GET':
         ret = []
         d = Dependants.objects.filter(user=request.user)
+        print(d)
+        if d is None:
+            return Response(data="No Dependants", status=status.HTTP_204_NO_CONTENT)
         for a in d:
             print(a.heiNumber)
             c = check_lab(a.heiNumber)
             print(c)
             if c == {'message': 'No results for the given CCC Number were found'}:
                 c.update({"hei": a.heiNumber})
-                ret.append(c)
+                # ret.append(c)
                 continue
             r = EidResults.objects.filter(r_id=c["results"][0]["id"])
             if r.count() == 0:
@@ -60,10 +66,9 @@ def get_eid(request):
                 data.save()
             r = EidResults.objects.filter(r_id=c["results"][0]["id"], result_type="2")
             serializer = EidSerializer(r, many=True)
-            print(len(serializer.data))
             for i in range(len(serializer.data)):
-                serializer.data[i].update({"dependant": a.heiNumber})
-            ret.append(serializer.data)
+                serializer.data[i].update({"dependant": a.first_name + ' ' + a.surname})
+            ret.append(serializer.data[0])
         return Response(data={"data": ret}, status=status.HTTP_200_OK)
 
 

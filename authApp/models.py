@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
-
 from .manager import CustomUserManager
 import uuid
 
@@ -16,8 +15,8 @@ class User(AbstractUser):
     securityQuestion = models.CharField(null=True, blank=True, max_length=150)
     securityAnswer = models.CharField(max_length=250)
     termsAccepted = models.BooleanField(default=0)
-    # created_at = models.DateTimeField(auto_now_add=True)
-    # updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     # jwt_secret = models.UUIDField(default=uuid.uuid4)
 
     REQUIRED_FIELDS = ['CCCNo', 'securityQuestion', 'securityAnswer', 'termsAccepted']
@@ -37,6 +36,8 @@ class User(AbstractUser):
 
 class Dependants(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=60, blank=False)
+    surname = models.CharField(max_length=60, null=True, blank=True)
     heiNumber = models.CharField(max_length=20, blank=False, unique=True)
     dob = models.DateField(blank=True, null=True)
     approved = models.BooleanField(default=0)

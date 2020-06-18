@@ -65,7 +65,6 @@ def depend(request):
             else:
                 return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print(e)
             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
     if request.method == "GET":
         queryset = Dependants.objects.filter(user=request.user.id)
@@ -95,9 +94,9 @@ def signup(request):
         try:
             if serializer.is_valid():
                 serializer.save()
-                return Response({"success": True, 
+                return Response({"success": True,
                                  "data": {
-                                     "user": "User Created", 
+                                     "user": "User Created",
                                      "f_name": serializer.data['first_name']
                                  }},
                                 status=status.HTTP_201_CREATED)
@@ -128,8 +127,56 @@ def check_ccc(value):
 def get_auth_user(request):
     if request.method == 'GET':
         queryset = User.objects.filter(id=request.user.id)
+        dep = Dependants.objects.filter(user=request.user)
+        dep_serializer = DependantSerializer(dep, many=True)
         serializer = UserProfileSerializer(queryset, many=True)
+        serializer.data[0].update({"dependants": dep_serializer.data})
+        print(serializer.data[0]['dependants'])
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['PUT'])
+def update_user(request):
+    if request.method == 'PUT':
+        u = User.objects.get(id=request.user.id)
+        serializer = UserUpdateSerializer(u, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['PUT'])
+def update_dependant(request):
+    if request.method == 'PUT':
+        u = Dependants.objects.get(id=request.data['id'])
+        serializer = DependantUpdateSerializer(u, data = request.data)
+        if u.user != request.user:
+            raise serializers.ValidationError("Dependant is not registered to user")
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_dependant(request, dep_id):
+    if request.method == "GET":
+        queryset = Dependants.objects.get(id=dep_id)
+        if queryset.user != request.user:
+            raise serializers.ValidationError("Dependant is not registered to user")
+        today = date.today()
+        serializer = DependantSerializer(queryset)
+        dob = serializer.data["dob"]
+        date1 = datetime.strptime(str(dob), '%Y-%m-%d')
+        date2 = datetime.strptime(str(today), '%Y-%m-%d')
+        r = relativedelta.relativedelta(date2, date1)
+        months_difference = r.months + (12 * r.years)
+        serializer.data["dob"] = months_difference
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 # class UserLogoutAllView(views.APIView):
 #     """
