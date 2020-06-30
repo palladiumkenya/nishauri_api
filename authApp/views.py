@@ -99,8 +99,7 @@ def signup(request):
                 serializer.save()
                 return Response({"success": True,
                                  "data": {
-                                     "user": "User Created",
-                                     "name": serializer.data['last_lame']
+                                     "user": "User Created"
                                  }},
                                 status=status.HTTP_201_CREATED)
             else:
@@ -125,7 +124,6 @@ def check_ccc(value):
         return response.json()["clients"][0]
     except IndexError:
         raise serializers.ValidationError("CCC number Validation Error")
-
 
 
 @permission_classes([IsAuthenticated])

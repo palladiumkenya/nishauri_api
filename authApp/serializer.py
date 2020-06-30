@@ -50,6 +50,12 @@ class UserSerializer(serializers.ModelSerializer):
         else:
             raise serializers.ValidationError("CCC number not found")
 
+    def validate_language_preference(self, value):
+        if value == 'English' or value == 'Kiswahili':
+            return value
+        else:
+            return 'English'
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
