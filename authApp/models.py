@@ -10,11 +10,13 @@ class User(AbstractUser):
     is_staff = None
     is_superuser = None
     first_name = models.CharField(null=True, blank=True, max_length=250)
+    last_name = models.CharField(null=True, blank=True, max_length=250)
     msisdn = models.CharField(max_length=15, unique=True)
     CCCNo = models.CharField(max_length=15, unique=True)
     securityQuestion = models.CharField(null=True, blank=True, max_length=150)
     securityAnswer = models.CharField(max_length=250)
     termsAccepted = models.BooleanField(default=0)
+    language_preference = models.CharField(max_length=20, default='English')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # jwt_secret = models.UUIDField(default=uuid.uuid4)
