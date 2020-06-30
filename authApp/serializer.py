@@ -13,7 +13,6 @@ class UserCreateSerializer(UserCreateSerializer):
         fields = ['id', 'msisdn', 'password', 'CCCNo', 'securityQuestion', 'securityAnswer', 'termsAccepted']
 
 
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -37,17 +36,16 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_CCCNo(self, value):
         user = {
-            "mfl_code": value[:5],
             "ccc_number": value
         }
-        url = "http://ushaurinode.mhealthkenya.org/api/mlab/check/consent"
+        url = "http://ushaurinode.mhealthkenya.org/api/mlab/get/one/client"
         headers = {
             'content-type': "application/json",
             'Accept': 'application/json'
         }
         response = requests.post(url, data=user, json=headers)
-        boo = response.headers
-        if boo['Content-Length'] != '0':
+        boo = response.json()
+        if len(boo['clients']) > 0:
             return value
         else:
             raise serializers.ValidationError("CCC number not found")
@@ -55,11 +53,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
-    # d = Dependants.objects.get(user=user)
-    print(user)
+
     class Meta:
         model = User
-        fields = ['id', 'last_login', 'first_name', 'last_name', 'msisdn', 'CCCNo', 'termsAccepted',
+        fields = ['id', 'last_login', 'first_name', 'last_name', 'language_preference', 'msisdn', 'CCCNo', 'termsAccepted',
                  'is_active', 'date_joined', 'securityQuestion', 'securityAnswer', 'user']
 
 
@@ -73,7 +70,7 @@ class DependantSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['msisdn', 'first_name', 'last_name', 'securityQuestion', 'securityAnswer']
+        fields = ['msisdn', 'first_name', 'last_name', 'language_preference', 'securityQuestion', 'securityAnswer']
 
     def validate_securityAnswer(self, value):
         if not value:

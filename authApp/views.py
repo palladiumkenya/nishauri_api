@@ -85,7 +85,10 @@ def depend(request):
 def signup(request):
     if request.method == 'POST':
         data_copy = request.data.copy()
-        data_copy.update({"first_name": check_ccc(request.data['CCCNo'])})
+        print(type(check_ccc(request.data['CCCNo'])['f_name']))
+        data_copy.update({"first_name": check_ccc(request.data['CCCNo'])["f_name"]})
+        data_copy.update({"last_name": check_ccc(request.data['CCCNo'])["l_name"]})
+
         serializer = UserSerializer(data=data_copy)
         if not serializer.is_valid():
             return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -97,7 +100,7 @@ def signup(request):
                 return Response({"success": True,
                                  "data": {
                                      "user": "User Created",
-                                     "f_name": serializer.data['first_name']
+                                     "name": serializer.data['last_lame']
                                  }},
                                 status=status.HTTP_201_CREATED)
             else:
@@ -109,17 +112,20 @@ def signup(request):
 
 def check_ccc(value):
     user = {
-        "mfl_code": value[:5],
         "ccc_number": value
     }
 
-    url = "http://ushaurinode.mhealthkenya.org/api/mlab/check/consent"
+    url = "http://ushaurinode.mhealthkenya.org/api/mlab/get/one/client"
     headers = {
         'content-type': "application/json",
         'Accept': 'application/json'
     }
     response = requests.post(url, data=user, json=headers)
-    return response.json()["f_name"]
+    try:
+        return response.json()["clients"][0]
+    except IndexError:
+        raise serializers.ValidationError("CCC number Validation Error")
+
 
 
 @permission_classes([IsAuthenticated])
@@ -131,7 +137,6 @@ def get_auth_user(request):
         dep_serializer = DependantSerializer(dep, many=True)
         serializer = UserProfileSerializer(queryset, many=True)
         serializer.data[0].update({"dependants": dep_serializer.data})
-        print(serializer.data[0]['dependants'])
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -152,7 +157,7 @@ def update_user(request):
 def update_dependant(request):
     if request.method == 'PUT':
         u = Dependants.objects.get(id=request.data['id'])
-        serializer = DependantUpdateSerializer(u, data = request.data)
+        serializer = DependantUpdateSerializer(u, data=request.data)
         if u.user != request.user:
             raise serializers.ValidationError("Dependant is not registered to user")
         if serializer.is_valid():
