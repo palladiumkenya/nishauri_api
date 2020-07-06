@@ -47,7 +47,6 @@ def get_eid(request):
         if d is None:
             return Response(data="No Dependants", status=status.HTTP_204_NO_CONTENT)
         for a in d:
-            print(a.heiNumber)
             c = check_lab(a.heiNumber)
             print(c)
             if c == {'message': 'No results for the given CCC Number were found'}:

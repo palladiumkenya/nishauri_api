@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     # 'django.contrib.admin',
     'authApp',
     'labResults',
+    'appointments',
 
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -62,8 +62,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'last_login', 'first_name', 'last_name', 'language_preference', 'msisdn', 'CCCNo', 'termsAccepted',
-                 'is_active', 'date_joined', 'securityQuestion', 'securityAnswer', 'user']
+        fields = ['id', 'last_login', 'first_name', 'last_name', 'language_preference', 'msisdn', 'CCCNo',
+                  'termsAccepted', 'is_active', 'date_joined', 'securityQuestion', 'securityAnswer', 'user']
 
 
 class DependantSerializer(serializers.ModelSerializer):
