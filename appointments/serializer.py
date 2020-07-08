@@ -5,4 +5,10 @@ from .models import *
 class AppointSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointments
-        fields = ('appntmnt_date', 'app_status', 'visit_type')
+        fields = "__all__"
+
+
+class PAppointSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointments
+        fields = ("id", "appntmnt_date", "app_status", "visit_type", "app_type")

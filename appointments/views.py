@@ -20,25 +20,20 @@ def get_appointment(request):
         c = check_appoint(request.user.CCCNo)
         if not c["success"]:
             return Response(data={'message': c["message"]}, status=status.HTTP_204_NO_CONTENT)
-        li = []
-        ar = Appointments.objects.filter(user=request.user).count()
-        if ar != len(c["appointments"]):
-            for it in range(len(c["appointments"])):
-                r = Appointments.objects.filter(user=request.user)
-                # for a in r:
-                #     print(r)
-                #     if a.appntmnt_date == c["appointments"][it]["appntmnt_date"] and a.app_status == c["appointments"][it]["app_status"] and a.visit_type == c["appointments"][it]["visit_type"]:
-                #         break
-                #     else:
-                #         data = Appointments()
-                #         data.user = request.user
-                #         data.appntmnt_date = c["appointments"][it]["appntmnt_date"]
-                #         data.app_status = c["appointments"][it]["app_status"]
-                #         data.visit_type = c["appointments"][it]["visit_type"]
-                #         data.save()
+        for it in range(len(c["client"]["appointments"])):
+            r = Appointments.objects.filter(aid=c["client"]["appointments"][it]["id"]).count()
+            if r == 0:
+                data = Appointments()
+                data.user = request.user
+                data.aid = c["client"]["appointments"][it]["id"]
+                data.appntmnt_date = c["client"]["appointments"][it]["appntmnt_date"]
+                data.app_status = c["client"]["appointments"][it]["app_status"]
+                data.visit_type = c["client"]["appointments"][it]["visit_type"]
+                data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
+                data.save()
         r = Appointments.objects.filter(user=request.user)
-        serializer = AppointSerializer(c["appointments"], many=True)
-        # li.append(serializer.data[0])
+        print(r)
+        serializer = AppointSerializer(r, many=True)
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -50,10 +45,23 @@ def upcoming_appointment(request):
         if not c["success"]:
             return Response(data={'message': c["message"]}, status=status.HTTP_204_NO_CONTENT)
         li = []
-        for it in range(len(c["appointments"])):
-            if datetime.strptime(str(date.today()), '%Y-%m-%d') < datetime.strptime(str(c["appointments"][it]["appntmnt_date"]), '%Y-%m-%d'):
-                li.append(c["appointments"][it])
-        serializer = AppointSerializer(li, many=True)
+        for it in range(len(c["client"]["appointments"])):
+            if datetime.strptime(str(date.today()), '%Y-%m-%d') <= datetime.strptime(str(c["client"]["appointments"][it]["appntmnt_date"]), '%Y-%m-%d'):
+                c["client"]["appointments"][it].update({"app_type": c["client"]["appointments"][it]["app_type"]["name"]})
+                li.append(c["client"]["appointments"][it])
+                r = Appointments.objects.filter(aid=c["client"]["appointments"][it]["id"]).count()
+                if r == 0:
+                    data = Appointments()
+                    data.user = request.user
+                    data.aid = c["client"]["appointments"][it]["id"]
+                    data.appntmnt_date = c["client"]["appointments"][it]["appntmnt_date"]
+                    data.app_status = c["client"]["appointments"][it]["app_status"]
+                    data.visit_type = c["client"]["appointments"][it]["visit_type"]
+                    data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
+                    data.save()
+            if len(li) == 0:
+                return Response(data={'message': "No upcoming appointmets"}, status=status.HTTP_204_NO_CONTENT)
+        serializer = PAppointSerializer(li, many=True)
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -65,10 +73,23 @@ def past_appointment(request):
         if not c["success"]:
             return Response(data={'message': c["message"]}, status=status.HTTP_204_NO_CONTENT)
         li = []
-        for it in range(len(c["appointments"])):
-            if datetime.strptime(str(date.today()), '%Y-%m-%d') > datetime.strptime(str(c["appointments"][it]["appntmnt_date"]), '%Y-%m-%d'):
-                li.append(c["appointments"][it])
-        serializer = AppointSerializer(li, many=True)
+        for it in range(len(c["client"]["appointments"])):
+            if datetime.strptime(str(date.today()), '%Y-%m-%d') > datetime.strptime(str(c["client"]["appointments"][it]["appntmnt_date"]), '%Y-%m-%d'):
+                c["client"]["appointments"][it].update({"app_type": c["client"]["appointments"][it]["app_type"]["name"]})
+                li.append(c["client"]["appointments"][it])
+                r = Appointments.objects.filter(aid=c["client"]["appointments"][it]["id"]).count()
+                if r == 0:
+                    data = Appointments()
+                    data.user = request.user
+                    data.aid = c["client"]["appointments"][it]["id"]
+                    data.appntmnt_date = c["client"]["appointments"][it]["appntmnt_date"]
+                    data.app_status = c["client"]["appointments"][it]["app_status"]
+                    data.visit_type = c["client"]["appointments"][it]["visit_type"]
+                    data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
+                    data.save()
+        if len(li) == 0:
+            return Response(data={'message': "No upcoming appointmets"}, status=status.HTTP_204_NO_CONTENT)
+        serializer = PAppointSerializer(li, many=True)
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
 

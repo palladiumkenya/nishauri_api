@@ -16,7 +16,7 @@ def get_vload(request):
         c = check_lab(request.user.CCCNo)
         if c == {'message': 'No results for the given CCC Number were found'}:
             return Response(data={'message': 'No results for the given CCC Number were found'}, status=status.HTTP_204_NO_CONTENT)
-        li=[]
+        li = []
         for it in range(len(c["results"])):
             r = VLResult.objects.filter(r_id=c["results"][it]["id"])
             if r.count() == 0:
