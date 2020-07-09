@@ -8,7 +8,7 @@ class AppointSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class PAppointSerializer(serializers.ModelSerializer):
+class BookAppointmentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Appointments
-        fields = ("id", "appntmnt_date", "app_status", "visit_type", "app_type")
+        model = BookAppointment
+        fields = "__all__"
