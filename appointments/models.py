@@ -25,7 +25,8 @@ class BookAppointment(models.Model):
     approval_status = models.CharField(max_length=50, default="Pending")
     book_type = models.CharField(max_length=50, default="New")
     book_id = models.ForeignKey(Appointments, on_delete=models.CASCADE, blank=True, null=True)
-    reason = models.CharField(max_length=250, blank=True, null=True)
+    reason = models.CharField(max_length=50, blank=True, null=True)
+    comments = models.CharField(max_length=250, blank=True, null=True)
 
     class Meta:
         db_table = "Booked_Appointments"

@@ -143,7 +143,10 @@ def book_appointment(request):
     else:
         appoi = BookAppointment.objects.filter(user=request.user)#, book_type="New")
         serializer = BookAppointmentSerializer(appoi, many=True)
-        if serializer.data[0]:
+        for k in serializer.data:
+            if k["book_type"] == "Edit":
+                k.update({"appointment":AppointSerializer(Appointments.objects.filter(id=k["book_id"]), many=True).data[0]})
+        if len(serializer.data) > 0:
             return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response(data={'message': "No rescheduled appointments"}, status=status.HTTP_400_BAD_REQUEST)
@@ -227,4 +230,3 @@ def pull_dep(r):
                 data.owner = "Dependant"
                 data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
                 data.save()
-
