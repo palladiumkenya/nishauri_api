@@ -193,6 +193,37 @@ def get_treatment(request):
         print(e)
 
 
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def accept_appointment(request, app_id):
+    if request.method == 'POST':
+        BookAppointment.objects.filter(id=app_id).update(approval_status="Accepted")
+        app = BookAppointment.objects.get(id=app_id)
+        if app.book_type == "New":
+            new_app = Appointments(appntmnt_date=app.appntmnt_date,
+                                   app_type=app.app_type,
+                                   visit_type="ReScheduled",
+                                   user=request.user,
+                                   app_status="Notified").save()
+            if not new_app:
+                raise serializers.ValidationError({"error": "An error occured"})
+        elif app.book_type == "Edit":
+            Appointments.objects.filter(id=app.book_id_id).update(appntmnt_date=app.appntmnt_date)
+        ser = BookAppointmentSerializer(app)
+        return Response(ser.data, status=status.HTTP_200_OK)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def reject_appointment(request, app_id):
+    if request.method == 'POST':
+        BookAppointment.objects.filter(id=app_id).update(approval_status="Rejected")
+        app = BookAppointment.objects.get(id=app_id)
+        print(app.book_id_id)
+        ser = BookAppointmentSerializer(app)
+        return Response(ser.data, status=status.HTTP_200_OK)
+
+
 def check_appoint(value):
     try:
         user = {

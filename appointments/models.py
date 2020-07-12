@@ -3,7 +3,7 @@ from authApp.models import *
 
 
 class Appointments(models.Model):
-    aid = models.CharField(max_length=50)
+    aid = models.CharField(max_length=50, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     appntmnt_date = models.DateField()
     app_status = models.CharField(max_length=50)
