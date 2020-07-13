@@ -74,15 +74,23 @@ def upcoming_appointment(request):
                 data.visit_type = c["client"]["appointments"][it]["visit_type"]
                 data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
                 data.save()
-
+        n_list = []
         for r in Appointments.objects.filter(user=request.user):
             if datetime.strptime(str(date.today()), '%Y-%m-%d') <= datetime.strptime(str(r.appntmnt_date), '%Y-%m-%d'):
                 li.append(r)
+        for r in BookAppointment.objects.filter(user=request.user, book_type="New", approval_status="Pending"):
+            if datetime.strptime(str(date.today()), '%Y-%m-%d') <= datetime.strptime(str(r.appntmnt_date), '%Y-%m-%d'):
+                n_list.append(r)
 
+        if len(li) == 0 and len(n_list) == 0:
+            return Response(data={'message': "No upcoming appointments"}, status=status.HTTP_204_NO_CONTENT)
+        serializer = AppointSerializer(li, many=True).data
+        s = BookAppointmentSerializer(n_list, many=True).data
+        if len(n_list) == 0:
+            s = "No booked appointments pending"
         if len(li) == 0:
-            return Response(data={'message': "No upcoming appointmets"}, status=status.HTTP_204_NO_CONTENT)
-        serializer = AppointSerializer(li, many=True)
-        return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
+            serializer = "No upcoming appointments"
+        return Response(data={"data": serializer, "booked": s}, status=status.HTTP_200_OK)
 
 
 @permission_classes([IsAuthenticated])
@@ -150,7 +158,6 @@ def book_appointment(request):
             return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response(data={'message': "No rescheduled appointments"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 @permission_classes([IsAuthenticated])
