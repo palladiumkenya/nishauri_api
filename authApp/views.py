@@ -85,9 +85,13 @@ def depend(request):
 def signup(request):
     if request.method == 'POST':
         data_copy = request.data.copy()
-        print(type(check_ccc(request.data['CCCNo'])['f_name']))
+        a = check_ccc(request.data['CCCNo'])
+        if a == False:
+            return Response({"success": False, "error": "Invalid CCC number"}, status=status.HTTP_400_BAD_REQUEST)
         data_copy.update({"first_name": check_ccc(request.data['CCCNo'])["f_name"]})
         data_copy.update({"last_name": check_ccc(request.data['CCCNo'])["l_name"]})
+        data_copy.update({"initial_facility": check_ccc(request.data['CCCNo'])["mfl_code"]})
+        data_copy.update({"current_facility": check_ccc(request.data['CCCNo'])["mfl_code"]})
 
         serializer = UserSerializer(data=data_copy)
         if not serializer.is_valid():
@@ -123,7 +127,7 @@ def check_ccc(value):
     try:
         return response.json()["clients"][0]
     except IndexError:
-        raise serializers.ValidationError("CCC number Validation Error")
+        return False
 
 
 @permission_classes([IsAuthenticated])
@@ -135,6 +139,9 @@ def get_auth_user(request):
         dep_serializer = DependantSerializer(dep, many=True)
         serializer = UserProfileSerializer(queryset, many=True)
         serializer.data[0].update({"dependants": dep_serializer.data})
+        serializer.data[0].update({"initial_facility": Facilities.objects.get(mfl_code=serializer.data[0]['initial_facility']).name})
+        serializer.data[0].update({"current_facility": Facilities.objects.get(mfl_code=serializer.data[0]['current_facility']).name})
+
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
 

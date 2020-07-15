@@ -35,7 +35,7 @@ def get_appointment(request):
                 data.appntmnt_date = c["client"]["appointments"][it]["appntmnt_date"]
                 data.app_status = c["client"]["appointments"][it]["app_status"]
                 data.visit_type = c["client"]["appointments"][it]["visit_type"]
-                data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
+                data.app_type = c["client"]["appointments"][it]["app_type"]["name"]
                 data.save()
 
         r = Appointments.objects.filter(user=request.user)
@@ -72,7 +72,7 @@ def upcoming_appointment(request):
                 data.appntmnt_date = c["client"]["appointments"][it]["appntmnt_date"]
                 data.app_status = c["client"]["appointments"][it]["app_status"]
                 data.visit_type = c["client"]["appointments"][it]["visit_type"]
-                data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
+                data.app_type = c["client"]["appointments"][it]["app_type"]["name"]
                 data.save()
         n_list = []
         for r in Appointments.objects.filter(user=request.user):
@@ -121,7 +121,7 @@ def past_appointment(request):
                 data.appntmnt_date = c["client"]["appointments"][it]["appntmnt_date"]
                 data.app_status = c["client"]["appointments"][it]["app_status"]
                 data.visit_type = c["client"]["appointments"][it]["visit_type"]
-                data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
+                data.app_type = c["client"]["appointments"][it]["app_type"]["name"]
                 data.save()
 
         for r in Appointments.objects.filter(user=request.user):
@@ -266,5 +266,5 @@ def pull_dep(r):
                 data.visit_type = c["client"]["appointments"][it]["visit_type"]
                 data.dependant = d.heiNumber
                 data.owner = "Dependant"
-                data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
+                data.app_type = c["client"]["appointments"][it]["app_type"]["name"]
                 data.save()

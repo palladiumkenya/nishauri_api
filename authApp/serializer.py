@@ -22,7 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("Invalid security Answer")
         else:
-            value = make_password(value)
             return value
 
     def validate_password(self, value):
@@ -63,7 +62,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'last_login', 'first_name', 'last_name', 'language_preference', 'msisdn', 'CCCNo',
-                  'termsAccepted', 'is_active', 'date_joined', 'securityQuestion', 'securityAnswer', 'user']
+                  'current_facility', 'initial_facility', 'termsAccepted', 'is_active', 'date_joined',
+                  'securityQuestion', 'securityAnswer', 'user']
 
 
 class DependantSerializer(serializers.ModelSerializer):
@@ -82,7 +82,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("Invalid security Answer")
         else:
-            value = make_password(value)
             return value
 
 

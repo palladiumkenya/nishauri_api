@@ -16,6 +16,8 @@ class User(AbstractUser):
     securityQuestion = models.CharField(null=True, blank=True, max_length=150)
     securityAnswer = models.CharField(max_length=250)
     termsAccepted = models.BooleanField(default=0)
+    initial_facility = models.CharField(max_length=50, default=0)
+    current_facility = models.CharField(max_length=50, default=0)
     language_preference = models.CharField(max_length=20, default='English')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -40,9 +42,19 @@ class Dependants(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=60, blank=False)
     surname = models.CharField(max_length=60, null=True, blank=True)
-    heiNumber = models.CharField(max_length=20, blank=False, unique=True)
+    heiNumber = models.CharField(max_length=20, blank=False)
     dob = models.DateField(blank=True, null=True)
     approved = models.BooleanField(default=0)
 
     class Meta:
         db_table = "Dependants"
+
+
+class Facilities(models.Model):
+    mfl_code = models.PositiveIntegerField()
+    name = models.CharField(max_length=80)
+    county = models.CharField(max_length=30)
+    sub_county = models.CharField(max_length=80)
+
+    class Meta:
+        db_table = "Facilities"
