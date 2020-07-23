@@ -16,6 +16,6 @@ urlpatterns = [
     url('user/update', views.update_user, name="update-user"),
     url('dependant/update', views.update_dependant, name="update-dependant"),
     url('dependant/(?P<dep_id>\d+)', views.get_dependant, name="update-dependant"),
+    url('auth/dashboard', views.dashboard, name="dashboard"),
     # path(r'user/logout/', views.UserLogoutAllView.as_view(), name='user-logout-all'),
 ]
-

@@ -16,6 +16,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializer import *
 from .models import *
+from appointments.models import *
 
 
 @api_view(['GET'])
@@ -131,7 +132,6 @@ def check_ccc(value):
         return False
 
 
-
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_auth_user(request):
@@ -188,6 +188,32 @@ def get_dependant(request, dep_id):
         months_difference = r.months + (12 * r.years)
         serializer.data["dob"] = months_difference
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def dashboard(request):
+    results = Appointments.objects.filter(user=request.user)
+    if results.count() is 0:
+        return Response({"success": False, "Info": "No Appointments for users"}, status=status.HTTP_406_NOT_ACCEPTABLE)
+    arr = []
+    for f in results:
+        arr.append(f.app_status)
+    arr.sort()
+    b = dict((x, arr.count(x)) for x in set(arr))
+    results = Appointments.objects.filter(user=request.user).exclude(app_status="Notified")
+    kept = len(arr) - results.count()
+    missed = results.count()
+    b.update({'kept appointment': kept, 'missed appointment': missed, 'total': len(arr)})
+    arr = []
+    for f in results:
+        arr.append(f.app_type)
+    arr.sort()
+    a = dict((x, arr.count(x)) for x in set(arr))
+    a.update({'total missed': missed})
+
+    return Response({"success": True, "data": {'all apointments': b, 'missed per type': a}}, status=status.HTTP_200_OK)
+
 
 # class UserLogoutAllView(views.APIView):
 #     """
