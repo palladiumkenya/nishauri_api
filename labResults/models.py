@@ -8,7 +8,7 @@ class VLResult(models.Model):
     result_type = models.CharField(max_length=10)
     result_content = models.CharField(max_length=30)
     date_collected = models.DateField()
-    lab_name = models.CharField(max_length=150)
+    lab_name = models.CharField(max_length=150, null=True)
 
     class Meta:
         db_table = "VLResults"
@@ -20,7 +20,7 @@ class EidResults(models.Model):
     result_type = models.CharField(max_length=10)
     result_content = models.CharField(max_length=30)
     date_collected = models.DateField()
-    lab_name = models.CharField(max_length=150)
+    lab_name = models.CharField(max_length=150, null=True)
 
     class Meta:
         db_table = "EidResults"

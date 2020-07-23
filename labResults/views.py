@@ -43,10 +43,8 @@ def get_eid(request):
     if request.method == 'GET':
         ret = []
         d = Dependants.objects.filter(user=request.user)
-        print(d)
-        if d is None:
-            return Response(data="No Dependants", status=status.HTTP_204_NO_CONTENT)
         for a in d:
+            print(a.heiNumber)
             c = check_lab(a.heiNumber)
             print(c)
             if c == {'message': 'No results for the given CCC Number were found'}:
@@ -66,7 +64,7 @@ def get_eid(request):
             r = EidResults.objects.filter(r_id=c["results"][0]["id"], result_type="2")
             serializer = EidSerializer(r, many=True)
             for i in range(len(serializer.data)):
-                serializer.data[i].update({"dependant": a.first_name + ' ' + a.surname})
+                serializer.data[i].update({"dependant": a.first_name + " " + a.surname})
             ret.append(serializer.data[0])
         return Response(data={"data": ret}, status=status.HTTP_200_OK)
 

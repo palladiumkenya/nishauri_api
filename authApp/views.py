@@ -88,6 +88,7 @@ def signup(request):
         a = check_ccc(request.data['CCCNo'])
         if a == False:
             return Response({"success": False, "error": "Invalid CCC number"}, status=status.HTTP_400_BAD_REQUEST)
+        print(type(check_ccc(request.data['CCCNo'])['f_name']))
         data_copy.update({"first_name": check_ccc(request.data['CCCNo'])["f_name"]})
         data_copy.update({"last_name": check_ccc(request.data['CCCNo'])["l_name"]})
         data_copy.update({"initial_facility": check_ccc(request.data['CCCNo'])["mfl_code"]})
@@ -130,6 +131,7 @@ def check_ccc(value):
         return False
 
 
+
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_auth_user(request):
@@ -141,7 +143,6 @@ def get_auth_user(request):
         serializer.data[0].update({"dependants": dep_serializer.data})
         serializer.data[0].update({"initial_facility": Facilities.objects.get(mfl_code=serializer.data[0]['initial_facility']).name})
         serializer.data[0].update({"current_facility": Facilities.objects.get(mfl_code=serializer.data[0]['current_facility']).name})
-
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
 

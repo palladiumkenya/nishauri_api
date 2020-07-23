@@ -72,6 +72,12 @@ class DependantSerializer(serializers.ModelSerializer):
         fields = '__all__'
         user = serializers.Field(source='user.id')
 
+    def validate_heiNumber(self, value):
+        if Dependants.objects.filter(heiNumber=value).count() < 2:
+            return value
+        else:
+            raise serializers.ValidationError("Dependant already has 2 approved care-givers")
+
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:

@@ -266,5 +266,5 @@ def pull_dep(r):
                 data.visit_type = c["client"]["appointments"][it]["visit_type"]
                 data.dependant = d.heiNumber
                 data.owner = "Dependant"
-                data.app_type = c["client"]["appointments"][it]["app_type"]["name"]
+                data.appoint_type = c["client"]["appointments"][it]["app_type"]["name"]
                 data.save()
