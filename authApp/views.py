@@ -17,6 +17,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializer import *
 from .models import *
 from appointments.models import *
+from labResults.models import *
 
 
 @api_view(['GET'])
@@ -193,11 +194,12 @@ def get_dependant(request, dep_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def dashboard(request):
-    results = Appointments.objects.filter(user=request.user)
-    if results.count() is 0:
-        return Response({"success": False, "Info": "No Appointments for users"}, status=status.HTTP_406_NOT_ACCEPTABLE)
+    appoint = Appointments.objects.filter(user=request.user)
+    vlr = VLResult.objects.filter(user=request.user)
+    if appoint.count() == 0 and vlr.count() == 0:
+        return Response({"success": False, "Info": "No Appointments and Result for user"}, status=status.HTTP_406_NOT_ACCEPTABLE)
     arr = []
-    for f in results:
+    for f in appoint:
         arr.append(f.app_status)
     arr.sort()
     b = dict((x, arr.count(x)) for x in set(arr))
@@ -212,8 +214,63 @@ def dashboard(request):
     a = dict((x, arr.count(x)) for x in set(arr))
     a.update({'total missed': missed})
 
-    return Response({"success": True, "data": {'all apointments': b, 'missed per type': a}}, status=status.HTTP_200_OK)
+    results = VLResult.objects.filter(user=request.user).order_by("-date_collected")
+    print(results)
+    supr = []
+    arr = []
+    for f in results:
+        arr.append(f.result_content)
+    for r in arr:
+        if r == "< LDL " or int(r) < 1000:
+            supr.append(1)
+        else:
+            supr.append(2)
+    seq = [i for i in range(1, len(supr)) if supr[i] != supr[i - 1]]
+    print(supr)
+    print(seq)
+    diff_sup = ""
+    diff_unsup = ""
+    current = "No Data"
+    try:
+        if supr[0] == 1:
+            current = "Currently Suppressed"
+            try:
+                diff_sup = datediff(results[seq[0] - 1].date_collected, date.today())
+            except IndexError:
+                diff_sup = "0 days"
+            try:
+                diff_unsup = datediff(results[seq[1] - 1].date_collected, results[seq[0]].date_collected)
+            except IndexError:
+                diff_unsup = "0 days"
 
+        elif supr[0] == 2:
+            current = "Currently Unsuppressed"
+            try:
+                diff_sup = datediff(results[seq[1] - 1].date_collected, results[seq[0]].date_collected)
+            except IndexError:
+                diff_sup = "0 days"
+            try:
+                diff_unsup = datediff(results[seq[0] - 1].date_collected, date.today())
+            except IndexError:
+                diff_unsup = "0 days"
+
+    except IndexError:
+        diff_sup = "No data"
+        diff_unsup = "No data"
+
+    return Response({"success": True, "data": {'all apointments': b,
+                                               'missed per type': a,
+                                               'days suppressed': diff_sup,
+                                               'days unsuppressed': diff_unsup,
+                                               'current status': current}},
+                    status=status.HTTP_200_OK)
+
+
+def datediff(d1, d2):
+    date1 = datetime.strptime(str(d1), '%Y-%m-%d')
+    date2 = datetime.strptime(str(d2), '%Y-%m-%d')
+    diff = relativedelta.relativedelta(date2, date1)
+    return '{} years {} months {} days'.format(diff.years, diff.months, diff.days)
 
 # class UserLogoutAllView(views.APIView):
 #     """

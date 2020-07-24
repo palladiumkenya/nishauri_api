@@ -19,7 +19,6 @@ class User(AbstractUser):
     initial_facility = models.CharField(max_length=50, default=0)
     current_facility = models.CharField(max_length=50, default=0)
     language_preference = models.CharField(max_length=20, default='English')
-    consent = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # jwt_secret = models.UUIDField(default=uuid.uuid4)

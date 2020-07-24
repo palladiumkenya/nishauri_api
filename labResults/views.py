@@ -1,3 +1,6 @@
+import datetime
+from datetime import datetime
+
 import requests
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
@@ -24,12 +27,16 @@ def get_vload(request):
                 data.user = request.user
                 data.r_id = c["results"][it]["id"]
                 data.result_type = c["results"][it]["result_type"]
+                data.date_collected = c["results"][it]["date_collected"]
+                data.lab_name = c["results"][it]["lab_name"]
                 try:
                     data.result_content = int(c["results"][it]["result_content"])
                 except ValueError:
                     data.result_content = c["results"][it]["result_content"][:-9]
-                data.date_collected = c["results"][0]["date_collected"]
-                data.lab_name = c["results"][it]["lab_name"]
+                try:
+                    data.date_sent = datetime.strptime(c["results"][it]["date_sent"].split(" ")[0], '%Y-%m-%d')
+                except AttributeError:
+                    data.date_sent = None
                 data.save()
             r = VLResult.objects.filter(r_id=c["results"][it]["id"], result_type="1")
             serializer = VLSerializer(r, many=True)
@@ -44,9 +51,7 @@ def get_eid(request):
         ret = []
         d = Dependants.objects.filter(user=request.user)
         for a in d:
-            print(a.heiNumber)
             c = check_lab(a.heiNumber)
-            print(c)
             if c == {'message': 'No results for the given CCC Number were found'}:
                 c.update({"hei": a.heiNumber})
                 # ret.append(c)
@@ -60,6 +65,10 @@ def get_eid(request):
                 data.result_content = c["results"][0]["result_content"]
                 data.date_collected = c["results"][0]["date_collected"]
                 data.lab_name = c["results"][0]["lab_name"]
+                try:
+                    data.date_sent = datetime.strptime(c["results"][0]["date_sent"].split(" ")[0], '%Y-%m-%d')
+                except AttributeError:
+                    data.date_sent = None
                 data.save()
             r = EidResults.objects.filter(r_id=c["results"][0]["id"], result_type="2")
             serializer = EidSerializer(r, many=True)

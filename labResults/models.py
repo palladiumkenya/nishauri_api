@@ -8,6 +8,7 @@ class VLResult(models.Model):
     result_type = models.CharField(max_length=10)
     result_content = models.CharField(max_length=30)
     date_collected = models.DateField()
+    date_sent = models.DateTimeField(null=True)
     lab_name = models.CharField(max_length=150, null=True)
 
     class Meta:
