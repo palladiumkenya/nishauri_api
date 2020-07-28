@@ -40,6 +40,7 @@ class User(AbstractUser):
 
 class Dependants(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    CCCNo = models.CharField(max_length=15, unique=True, null=True, blank=True)
     first_name = models.CharField(max_length=60, blank=False)
     surname = models.CharField(max_length=60, null=True, blank=True)
     heiNumber = models.CharField(max_length=20, blank=False)

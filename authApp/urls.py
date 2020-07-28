@@ -17,7 +17,7 @@ urlpatterns = [
     url('dependant/update', views.update_dependant, name="update-dependant"),
     url('dependant/(?P<dep_id>\d+)', views.get_dependant, name="get-dependant"),
     url('dependants/', views.depend, name="dependants"),
-    url('dependants/', views.depend, name="dependants"),
+    url('update-positive/(?P<dep_id>\d+)', views.elevate_dependant, name="add-positive-dependant"),
 
     url('auth/dashboard', views.dashboard, name="dashboard"),
     url('user/regiment', views.regiment_history, name="regiment-history"),

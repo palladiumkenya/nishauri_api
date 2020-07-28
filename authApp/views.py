@@ -1,6 +1,8 @@
 import datetime
 from datetime import date
 from datetime import datetime
+
+from PIL.PngImagePlugin import _idat
 from dateutil import relativedelta
 
 import requests
@@ -67,7 +69,7 @@ def depend(request):
             else:
                 return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+            return Response({"success": False, "error": 'something went wrong'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == "GET":
         queryset = Dependants.objects.filter(user=request.user.id)
         serializer = DependantSerializer(queryset, many=True)
@@ -113,7 +115,8 @@ def signup(request):
                 return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
-            return Response({"success": False, "error": [serializer.errors, str(e)]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": False, "error": [serializer.errors, str(e)]},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 def check_ccc(value):
@@ -191,13 +194,36 @@ def get_dependant(request, dep_id):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def elevate_dependant(request, dep_id):
+    if request.method == 'POST':
+        data_copy = request.data.copy()
+        if Dependants.objects.get(id=dep_id).user != request.user:
+            raise serializers.ValidationError("Dependant is not registered to user")
+        elif EidResults.objects.filter(dependant=dep_id).order_by('-date_sent').first().result_content == 'Positive':
+            d = Dependants.objects.get(id=dep_id)
+            d.CCCNo = data_copy['CCCNo']
+            d.save()
+            a = Dependants.objects.filter(heiNumber=d.heiNumber)
+            for i in a:
+                i.CCCNo = data_copy['CCCNo']
+                i.save()
+            return Response({"success": True,
+                             'data': "CCC number {} added".format(d.CCCNo)}, status=status.HTTP_202_ACCEPTED)
+        else:
+            raise serializers.ValidationError("Dependant is not registered to user")
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def dashboard(request):
     appoint = Appointments.objects.filter(user=request.user)
     vlr = VLResult.objects.filter(user=request.user)
     if appoint.count() == 0 and vlr.count() == 0:
-        return Response({"success": False, "Info": "No Appointments and Result for user"}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({"success": False,
+                         "Info": "No Appointments and Result for user"}, status=status.HTTP_406_NOT_ACCEPTABLE)
     arr = []
     for f in appoint:
         arr.append(f.app_status)
@@ -215,8 +241,7 @@ def dashboard(request):
     a = {k: v for k, v in sorted(a.items(), key=lambda x: x[1], reverse=True)}
     a.update({'total missed': missed})
 
-    results = VLResult.objects.filter(user=request.user).order_by("-date_sent")
-    print(results)
+    results = VLResult.objects.filter(user=request.user, owner='Personal').order_by("-date_sent")
     supr = []
     arr = []
     for f in results:
@@ -238,7 +263,10 @@ def dashboard(request):
             try:
                 diff_sup = datediff(results[seq[0] - 1].date_sent, date.today())
             except IndexError:
-                diff_sup = "0 days"
+                if len(supr) > 0:
+                    diff_sup = datediff(results[-1], date.today())
+                else:
+                    diff_sup = "0 days"
             try:
                 diff_unsup = datediff(results[seq[1] - 1].date_sent, results[seq[0] - 1].date_sent)
             except IndexError:
@@ -259,7 +287,10 @@ def dashboard(request):
             try:
                 diff_unsup = datediff(results[seq[0] - 1].date_sent, date.today())
             except IndexError:
-                diff_unsup = "0 days"
+                if len(supr) > 0:
+                    diff_unsup = datediff(results[-1], date.today())
+                else:
+                    diff_unsup = "0 days"
 
     except IndexError:
         diff_sup = "No data"

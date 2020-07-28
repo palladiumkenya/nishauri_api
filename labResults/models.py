@@ -10,6 +10,8 @@ class VLResult(models.Model):
     date_collected = models.DateField()
     date_sent = models.DateTimeField(null=True)
     lab_name = models.CharField(max_length=150, null=True)
+    owner = models.CharField(max_length=50, default='Personal')
+    CCCNo = models.CharField(max_length=15, null=True)
 
     class Meta:
         db_table = "VLResults"
@@ -21,6 +23,7 @@ class EidResults(models.Model):
     result_type = models.CharField(max_length=10)
     result_content = models.CharField(max_length=30)
     date_collected = models.DateField()
+    date_sent = models.DateTimeField(null=True)
     lab_name = models.CharField(max_length=150, null=True)
 
     class Meta:
