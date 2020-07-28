@@ -34,7 +34,7 @@ def get_vload(request):
                 except ValueError:
                     data.result_content = c["results"][it]["result_content"][:-9]
                 try:
-                    data.date_sent = datetime.strptime(c["results"][it]["date_sent"].split(" ")[0], '%Y-%m-%d')
+                    data.date_sent = datetime.strptime(c["results"][it]["created_at"].split(" ")[0], '%Y-%m-%d')
                 except AttributeError:
                     data.date_sent = None
                 data.save()
@@ -66,7 +66,7 @@ def get_eid(request):
                 data.date_collected = c["results"][0]["date_collected"]
                 data.lab_name = c["results"][0]["lab_name"]
                 try:
-                    data.date_sent = datetime.strptime(c["results"][0]["date_sent"].split(" ")[0], '%Y-%m-%d')
+                    data.date_sent = datetime.strptime(c["results"][0]["created_at"].split(" ")[0], '%Y-%m-%d')
                 except AttributeError:
                     data.date_sent = None
                 data.save()

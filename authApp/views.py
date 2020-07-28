@@ -212,16 +212,17 @@ def dashboard(request):
         arr.append(f.app_type)
     arr.sort()
     a = dict((x, arr.count(x)) for x in set(arr))
+    a = {k: v for k, v in sorted(a.items(), key=lambda x: x[1], reverse=True)}
     a.update({'total missed': missed})
 
-    results = VLResult.objects.filter(user=request.user).order_by("-date_collected")
+    results = VLResult.objects.filter(user=request.user).order_by("-date_sent")
     print(results)
     supr = []
     arr = []
     for f in results:
         arr.append(f.result_content)
-    for r in arr:
-        if r == "< LDL " or int(r) < 1000:
+    for r in results:
+        if r.result_content == "< LDL " or int(r.result_content) < 1000:
             supr.append(1)
         else:
             supr.append(2)
@@ -235,22 +236,28 @@ def dashboard(request):
         if supr[0] == 1:
             current = "Currently Suppressed"
             try:
-                diff_sup = datediff(results[seq[0] - 1].date_collected, date.today())
+                diff_sup = datediff(results[seq[0] - 1].date_sent, date.today())
             except IndexError:
                 diff_sup = "0 days"
             try:
-                diff_unsup = datediff(results[seq[1] - 1].date_collected, results[seq[0]].date_collected)
+                diff_unsup = datediff(results[seq[1] - 1].date_sent, results[seq[0] - 1].date_sent)
             except IndexError:
-                diff_unsup = "0 days"
+                if len(seq) == 1:
+                    diff_unsup = datediff(results[seq[0]].date_sent, results[seq[0] - 1].date_sent)
+                else:
+                    diff_unsup = "0 days"
 
         elif supr[0] == 2:
             current = "Currently Unsuppressed"
             try:
-                diff_sup = datediff(results[seq[1] - 1].date_collected, results[seq[0]].date_collected)
+                diff_sup = datediff(results[seq[1] - 1].date_sent, results[seq[0] - 1].date_sent)
             except IndexError:
-                diff_sup = "0 days"
+                if len(seq) == 1:
+                    diff_sup = datediff(results[seq[0]].date_sent, results[seq[0] - 1].date_sent)
+                else:
+                    diff_sup = "0 days"
             try:
-                diff_unsup = datediff(results[seq[0] - 1].date_collected, date.today())
+                diff_unsup = datediff(results[seq[0] - 1].date_sent, date.today())
             except IndexError:
                 diff_unsup = "0 days"
 
@@ -267,10 +274,38 @@ def dashboard(request):
 
 
 def datediff(d1, d2):
-    date1 = datetime.strptime(str(d1), '%Y-%m-%d')
-    date2 = datetime.strptime(str(d2), '%Y-%m-%d')
+    date1 = datetime.strptime(str(d1).split(" ")[0], '%Y-%m-%d')
+    date2 = datetime.strptime(str(d2).split(" ")[0], '%Y-%m-%d')
     diff = relativedelta.relativedelta(date2, date1)
     return '{} years {} months {} days'.format(diff.years, diff.months, diff.days)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def regiment_history(request):
+    if request.method == 'POST':
+        data_copy = request.data.copy()
+        data_copy.update({"user": request.user.id})
+        if data_copy['is_same_art']:
+            data_copy.update({"date_started": date.today()})
+            # TODO add art date
+        serializer = RegimentSerializer(data=data_copy)
+        print(serializer.is_valid())
+        try:
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+    elif request.method == 'GET':
+        queryset = Regiment.objects.filter(user=request.user.id)
+        if queryset.count() == 0:
+            return Response({"success": False, "data": "No regiment data"}, status=status.HTTP_200_OK)
+        else:
+            serializer = RegimentSerializer(queryset, many=True)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
 # class UserLogoutAllView(views.APIView):
 #     """

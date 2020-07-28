@@ -58,3 +58,12 @@ class Facilities(models.Model):
 
     class Meta:
         db_table = "Facilities"
+
+
+class Regiment(models.Model):
+    Regiment = models.CharField(max_length=100)
+    date_started = models.DateField(default="2020-05-05")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "Regiment History"

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Nishauri_API.iml" filepath="$PROJECT_DIR$/.idea/Nishauri_API.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../ears_system/.idea/virtual_eoc.iml" filepath="$PROJECT_DIR$/../ears_system/.idea/virtual_eoc.iml" />
     </modules>
   </component>
 </project>

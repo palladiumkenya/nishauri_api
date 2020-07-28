@@ -95,3 +95,9 @@ class DependantUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dependants
         fields = ['first_name', 'surname']
+
+
+class RegimentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Regiment
+        fields = '__all__'
