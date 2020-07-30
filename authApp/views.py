@@ -88,6 +88,7 @@ def depend(request):
 @api_view(['POST'])
 def signup(request):
     if request.method == 'POST':
+        # TODO signup for dependants is active
         data_copy = request.data.copy()
         a = check_ccc(request.data['CCCNo'])
         if a == False:
@@ -317,8 +318,21 @@ def regiment_history(request):
     if request.method == 'POST':
         data_copy = request.data.copy()
         data_copy.update({"user": request.user.id})
+        queryset = Regiment.objects.filter(user=request.user.id).order_by('-date_started')
+        c = check_ccc(request.user.CCCNo)
         if data_copy['is_same_art']:
-            data_copy.update({"date_started": date.today()})
+            if c is False:
+                raise serializers.ValidationError('ART DATE NOT FOUND')
+            elif queryset.count() > 0:
+                print(datetime.strptime(data_copy['date_started'], '%Y-%m-%d').date() > queryset.first().date_started)
+                raise serializers.ValidationError('Date cannot be added because data already exists')
+            else:
+                data_copy.update({"date_started": datetime.strptime(str(c['art_date'].split('T')[0]), '%Y-%m-%d')})
+        else:
+            if datetime.strptime(data_copy['date_started'], '%Y-%m-%d').date() <= queryset.first().date_started:
+                raise serializers.ValidationError('Date cannot be before that previous start date {}'.format(
+                    datetime.strptime(data_copy['date_started'], '%Y-%m-%d')))
+
             # TODO add art date
         serializer = RegimentSerializer(data=data_copy)
         print(serializer.is_valid())
@@ -331,12 +345,25 @@ def regiment_history(request):
         except Exception as e:
             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
     elif request.method == 'GET':
-        queryset = Regiment.objects.filter(user=request.user.id)
-        if queryset.count() == 0:
-            return Response({"success": False, "data": "No regiment data"}, status=status.HTTP_200_OK)
+        queryset = Regiment.objects.filter(user=request.user.id).order_by('-date_started')
+        queryset2 = Regiment.objects.filter(user=request.user.id).order_by('-date_started')[1:]
+        if queryset2.count() == 0:
+            if queryset.count() == 0:
+                return Response({"success": False, "data": "No regiment data"}, status=status.HTTP_200_OK)
+            else:
+                serializer = RegimentSerializer(queryset)
+                return Response({"success": True, "previous regiments": [], "current regiment": serializer.data}, status=status.HTTP_200_OK)
         else:
-            serializer = RegimentSerializer(queryset, many=True)
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+            serializer = RegimentSerializer(queryset2, many=True)
+            serializer2 = RegimentSerializer(queryset.first())
+            ser = serializer.data
+            date_c = serializer2.data['date_started']
+            for s in ser:
+                s.update({'end_date': date_c})
+                date_c = s['date_started']
+
+            return Response({"success": True, "previous regiments": serializer.data, "current regiment": serializer2.data},
+                            status=status.HTTP_200_OK)
 
 # class UserLogoutAllView(views.APIView):
 #     """
@@ -349,3 +376,6 @@ def regiment_history(request):
 #         user.jwt_secret = uuid.uuid4()
 #         user.save()
 #         return Response(status=status.HTTP_200_OK)
+
+# TODO do approval of dependants
+# TODO do approval of emancipated dependants
