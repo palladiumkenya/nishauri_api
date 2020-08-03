@@ -1,8 +1,6 @@
 import datetime
 from datetime import date
 from datetime import datetime
-
-from PIL.PngImagePlugin import _idat
 from dateutil import relativedelta
 
 import requests
@@ -224,16 +222,21 @@ def dashboard(request):
     vlr = VLResult.objects.filter(user=request.user)
     if appoint.count() == 0 and vlr.count() == 0:
         return Response({"success": False,
-                         "Info": "No Appointments and Result for user"}, status=status.HTTP_406_NOT_ACCEPTABLE)
+                         "Info": "No Appointments and Result for user"}, status=status.HTTP_200_OK)
+
     arr = []
+    booked = 0
     for f in appoint:
-        arr.append(f.app_status)
+        if datetime.strptime(str(date.today()), '%Y-%m-%d') > datetime.strptime(str(f.appntmnt_date), '%Y-%m-%d'):
+            arr.append(f.app_status)
+            if f.visit_type == 'ReScheduled':
+                booked += 1
     arr.sort()
     b = dict((x, arr.count(x)) for x in set(arr))
     results = Appointments.objects.filter(user=request.user).exclude(app_status="Notified")
     kept = len(arr) - results.count()
     missed = results.count()
-    b.update({'kept appointment': kept, 'missed appointment': missed, 'total': len(arr)})
+    b.update({'kept appointment': kept, 'missed appointment': missed, 'booked appointments': booked, 'total': len(arr)})
     arr = []
     for f in results:
         arr.append(f.app_type)
