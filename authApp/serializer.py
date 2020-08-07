@@ -101,3 +101,9 @@ class RegimentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Regiment
         fields = '__all__'
+
+
+class FacilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Facilities
+        fields = '__all__'

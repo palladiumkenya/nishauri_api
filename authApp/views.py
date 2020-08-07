@@ -371,6 +371,14 @@ def regiment_history(request):
             return Response({"success": True, "previous regiments": serializer.data, "current regiment": serializer2.data},
                             status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_facilities_all(request):
+    queryset = Facilities.objects.all()
+    serializer = FacilitySerializer(queryset, many=True)
+    return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+
 # class UserLogoutAllView(views.APIView):
 #     """
 #     Use this endpoint to log out all sessions for a given user.

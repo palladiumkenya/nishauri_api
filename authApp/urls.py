@@ -21,5 +21,7 @@ urlpatterns = [
 
     url('auth/dashboard', views.dashboard, name="dashboard"),
     url('user/regiment', views.regiment_history, name="regiment-history"),
+
+    url('facilities/all', views.get_facilities_all, name="all-facilities"),
     # path(r'user/logout/', views.UserLogoutAllView.as_view(), name='user-logout-all'),
 ]
