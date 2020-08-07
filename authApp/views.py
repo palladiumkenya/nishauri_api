@@ -141,11 +141,14 @@ def get_auth_user(request):
     if request.method == 'GET':
         queryset = User.objects.filter(id=request.user.id)
         dep = Dependants.objects.filter(user=request.user)
+        reg = Regiment.objects.filter(user=request.user).order_by('-date_started').first()
         dep_serializer = DependantSerializer(dep, many=True)
         serializer = UserProfileSerializer(queryset, many=True)
+
         serializer.data[0].update({"dependants": dep_serializer.data})
         serializer.data[0].update({"initial_facility": Facilities.objects.get(mfl_code=serializer.data[0]['initial_facility']).name})
         serializer.data[0].update({"current_facility": Facilities.objects.get(mfl_code=serializer.data[0]['current_facility']).name})
+        serializer.data[0].update({"current_treatment": RegimentSerializer(reg).data})
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
 
