@@ -45,7 +45,7 @@ class Dependants(models.Model):
     surname = models.CharField(max_length=60, null=True, blank=True)
     heiNumber = models.CharField(max_length=20, blank=False)
     dob = models.DateField(blank=True, null=True)
-    approved = models.BooleanField(default=0)
+    approved = models.CharField(default='Pending', max_length=20)
 
     class Meta:
         db_table = "Dependants"

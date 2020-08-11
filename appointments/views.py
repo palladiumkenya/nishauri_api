@@ -24,7 +24,7 @@ def get_appointment(request):
                 serializer = AppointSerializer(Appointments.objects.filter(user=request.user), many=True)
                 return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
             else:
-                return Response(data={'message': c["message"]}, status=status.HTTP_204_NO_CONTENT)
+                return Response(data={'message': c["message"]}, status=status.HTTP_200_OK)
         pull_dep(request)
         for it in range(len(c["client"]["appointments"])):
             r = Appointments.objects.filter(aid=c["client"]["appointments"][it]["id"]).count()
@@ -57,11 +57,11 @@ def upcoming_appointment(request):
                     if datetime.strptime(str(date.today()), '%Y-%m-%d') <= datetime.strptime(str(r.appntmnt_date), '%Y-%m-%d'):
                         li.append(r)
                 if len(li) == 0:
-                    return Response(data={'message': "No upcoming appointmets"}, status=status.HTTP_204_NO_CONTENT)
+                    return Response(data={'message': "No upcoming appointments"}, status=status.HTTP_200_OK)
                 serializer = AppointSerializer(li, many=True)
                 return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
             else:
-                return Response(data={'message': c["message"]}, status=status.HTTP_204_NO_CONTENT)
+                return Response(data={'message': c["message"]}, status=status.HTTP_200_OK)
         pull_dep(request)
         for it in range(len(c["client"]["appointments"])):
             r = Appointments.objects.filter(aid=c["client"]["appointments"][it]["id"])
@@ -83,7 +83,7 @@ def upcoming_appointment(request):
                 n_list.append(r)
 
         if len(li) == 0 and len(n_list) == 0:
-            return Response(data={'message': "No upcoming appointments"}, status=status.HTTP_204_NO_CONTENT)
+            return Response(data={'message': "No upcoming appointments"}, status=status.HTTP_200_OK)
         serializer = AppointSerializer(li, many=True).data
         s = BookAppointmentSerializer(n_list, many=True).data
         if len(n_list) == 0:
@@ -106,11 +106,11 @@ def past_appointment(request):
                     if datetime.strptime(str(date.today()), '%Y-%m-%d') > datetime.strptime(str(r.appntmnt_date), '%Y-%m-%d'):
                         li.append(r)
                 if len(li) == 0:
-                    return Response(data={'message': "No upcoming appointmets"}, status=status.HTTP_204_NO_CONTENT)
+                    return Response(data={'message': "No upcoming appointments"}, status=status.HTTP_200_OK)
                 serializer = AppointSerializer(li, many=True)
                 return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
             else:
-                return Response(data={'message': c["message"]}, status=status.HTTP_204_NO_CONTENT)
+                return Response(data={'message': c["message"]}, status=status.HTTP_200_OK)
         pull_dep(request)
         for it in range(len(c["client"]["appointments"])):
             r = Appointments.objects.filter(aid=c["client"]["appointments"][it]["id"])
@@ -128,7 +128,7 @@ def past_appointment(request):
             if datetime.strptime(str(date.today()), '%Y-%m-%d') > datetime.strptime(str(r.appntmnt_date), '%Y-%m-%d'):
                 li.append(r)
         if len(li) == 0:
-            return Response(data={'message': "No upcoming appointmets"}, status=status.HTTP_204_NO_CONTENT)
+            return Response(data={'message': "No upcoming appointments"}, status=status.HTTP_200_OK)
         serializer = AppointSerializer(li, many=True)
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -254,7 +254,7 @@ def pull_dep(r):
         c = check_appoint(d.heiNumber)
         print(c)
         if not c["success"]:
-            return Response(data={'message': c["message"]}, status=status.HTTP_204_NO_CONTENT)
+            return Response(data={'message': c["message"]}, status=status.HTTP_200_OK)
         for it in range(len(c["client"]["appointments"])):
             r = Appointments.objects.filter(aid=c["client"]["appointments"][it]["id"]).count()
             if r == 0:

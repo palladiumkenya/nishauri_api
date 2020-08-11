@@ -4,6 +4,7 @@ from datetime import datetime
 from dateutil import relativedelta
 
 import requests
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -178,21 +179,18 @@ def update_dependant(request):
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def get_dependant(request, dep_id):
-    if request.method == "GET":
-        queryset = Dependants.objects.get(id=dep_id)
+def get_dependant(request):
+    if request.method == "POST":
+        try:
+            queryset = Dependants.objects.get(id=request.data['id'])
+        except Exception:
+            raise serializers.ValidationError("Dependant Does Not Exist")
         if queryset.user != request.user:
             raise serializers.ValidationError("Dependant is not registered to user")
-        today = date.today()
         serializer = DependantSerializer(queryset)
-        dob = serializer.data["dob"]
-        date1 = datetime.strptime(str(dob), '%Y-%m-%d')
-        date2 = datetime.strptime(str(today), '%Y-%m-%d')
-        r = relativedelta.relativedelta(date2, date1)
-        months_difference = r.months + (12 * r.years)
-        serializer.data["dob"] = months_difference
+
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -379,6 +377,21 @@ def get_facilities_all(request):
     serializer = FacilitySerializer(queryset, many=True)
     return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def approve_dep(request, dep_id):
+    d = Dependants.objects.get(id=dep_id)
+    if d.user != request.user:
+        return Response({"success": False, "error": "Dependant not registered to User"},
+                        status=status.HTTP_403_FORBIDDEN)
+    else:
+        all_dep = Dependants.objects.filter(heiNumber=d.heiNumber)
+        for a in all_dep:
+            print(a.approved)
+        return Response({"success": True, "data": "Dependant approved {}".format(d.id)}, status=status.HTTP_201_CREATED)
+
+
 # class UserLogoutAllView(views.APIView):
 #     """
 #     Use this endpoint to log out all sessions for a given user.
@@ -391,5 +404,4 @@ def get_facilities_all(request):
 #         user.save()
 #         return Response(status=status.HTTP_200_OK)
 
-# TODO do approval of dependants
 # TODO do approval of emancipated dependants

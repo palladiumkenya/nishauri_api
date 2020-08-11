@@ -15,7 +15,8 @@ urlpatterns = [
     url('user/update', views.update_user, name="update-user"),
 
     url('dependant/update', views.update_dependant, name="update-dependant"),
-    url('dependant/(?P<dep_id>\d+)', views.get_dependant, name="get-dependant"),
+    url('dependant/single', views.get_dependant, name="get-dependant"),
+    url('approve/dependant/(?P<dep_id>\d+)', views.approve_dep, name="approve-dependant"),
     url('dependants/', views.depend, name="dependants"),
     url('update-positive/(?P<dep_id>\d+)', views.elevate_dependant, name="add-positive-dependant"),
 

@@ -1,4 +1,8 @@
 import requests
+import datetime
+from datetime import date
+from datetime import datetime
+from dateutil import relativedelta
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
@@ -67,6 +71,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class DependantSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Dependants
         fields = '__all__'
@@ -77,6 +82,22 @@ class DependantSerializer(serializers.ModelSerializer):
             return value
         else:
             raise serializers.ValidationError("Dependant already has 2 approved care-givers")
+
+    def to_representation(self, value):
+        data = super().to_representation(value)
+        print("a",data)
+        dob = data["dob"]
+        date1 = datetime.strptime(str(dob), '%Y-%m-%d')
+        date2 = datetime.strptime(str(date.today()), '%Y-%m-%d')
+        diff = relativedelta.relativedelta(date2, date1)
+        months_difference = "0 years"
+        if diff.years == 0:
+            months_difference = '{} months {} days'.format(diff.months, diff.days)
+            data.update({"age": months_difference})
+        else:
+            months_difference = '{} years {} months {} days'.format(diff.years, diff.months, diff.days)
+            data.update({"age": months_difference})
+        return data
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
