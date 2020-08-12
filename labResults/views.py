@@ -16,7 +16,6 @@ from .serializer import *
 @api_view(['GET'])
 def get_vload(request):
     if request.method == 'GET':
-        li = []
         c = check_lab(request.user.CCCNo)
         if c != {'message': 'No results for the given CCC Number were found'}:
             save_vl(c, request, 'Personal')
@@ -24,26 +23,37 @@ def get_vload(request):
             serializer = VLSerializer(r, many=True)
             dat = serializer.data
 
-            d = Dependants.objects.filter(user=request.user)
-            for i in d:
-                if i.CCCNo:
-                    res = check_lab(i.CCCNo)
-                    if res != {'message': 'No results for the given CCC Number were found'}:
-                        save_vl(res, request, 'Dependant')
-
-                    r = VLResult.objects.filter(user=request.user, result_type='1',
-                                                owner='Dependant').order_by('-date_sent')
-                    dep_ser = VLSerializer(r, many=True)
-
-                    for q in dep_ser.data:
-                        q.update({'name': Dependants.objects.get(CCCNo=q['CCCNo']).first_name + ' ' + Dependants.objects.get(CCCNo=q['CCCNo']).surname})
-                        li.append(q)
-
         else:
             dat = {'message': 'No results for the given CCC Number were found'}
 
-        return Response(data={"data": dat, 'dependant': li if len(li) > 0 else 'No results found'},
-                        status=status.HTTP_200_OK)
+        return Response(data=dat, status=status.HTTP_200_OK)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def get_dep_vload(request):
+    if request.method == 'GET':
+        li = []
+        d = Dependants.objects.filter(user=request.user)
+        for i in d:
+            if i.CCCNo:
+                res = check_lab(i.CCCNo)
+                if res != {'message': 'No results for the given CCC Number were found'}:
+                    save_vl(res, request, 'Dependant')
+
+                r = VLResult.objects.filter(user=request.user, result_type='1',
+                                            owner='Dependant').order_by('-date_sent')
+                print(r)
+                dep_ser = VLSerializer(r, many=True)
+
+                for q in dep_ser.data:
+                    q.update({'name': Dependants.objects.get(CCCNo=q['CCCNo']).first_name + ' ' + Dependants.objects.get(CCCNo=q['CCCNo']).surname})
+                    li.append(q)
+
+        else:
+            li = {'message': 'No results for the given CCC Number were found'}
+
+        return Response(data={"data": li}, status=status.HTTP_200_OK)
 
 
 @permission_classes([IsAuthenticated])
