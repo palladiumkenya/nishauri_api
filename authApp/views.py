@@ -381,14 +381,20 @@ def get_facilities_all(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def approve_dep(request, dep_id):
-    d = Dependants.objects.get(id=dep_id)
+    try:
+        d = Dependants.objects.get(id=dep_id)
+    except Exception:
+        return Response({"success": False, "error": "Dependant does not exist"},
+                        status=status.HTTP_401_UNAUTHORIZED)
     if d.user != request.user:
         return Response({"success": False, "error": "Dependant not registered to User"},
+                        status=status.HTTP_401_UNAUTHORIZED)
+    elif d.approved == "Approved":
+        return Response({"success": False, "error": "Dependant already approved"},
                         status=status.HTTP_403_FORBIDDEN)
     else:
-        all_dep = Dependants.objects.filter(heiNumber=d.heiNumber)
-        for a in all_dep:
-            print(a.approved)
+        all_dep = Dependants.objects.filter(id=dep_id).update(approved="Approved")
+        print(all_dep)
         return Response({"success": True, "data": "Dependant approved {}".format(d.id)}, status=status.HTTP_201_CREATED)
 
 

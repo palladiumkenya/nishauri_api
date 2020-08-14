@@ -25,8 +25,9 @@ def get_vload(request):
 
         else:
             dat = {'message': 'No results for the given CCC Number were found'}
+            return Response(data=dat, status=status.HTTP_200_OK)
 
-        return Response(data=dat, status=status.HTTP_200_OK)
+        return Response(data={"data":dat}, status=status.HTTP_200_OK)
 
 
 @permission_classes([IsAuthenticated])
@@ -43,7 +44,6 @@ def get_dep_vload(request):
 
                 r = VLResult.objects.filter(user=request.user, result_type='1',
                                             owner='Dependant').order_by('-date_sent')
-                print(r)
                 dep_ser = VLSerializer(r, many=True)
 
                 for q in dep_ser.data:
