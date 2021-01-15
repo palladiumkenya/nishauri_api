@@ -10,7 +10,19 @@ urlpatterns = [
     path('auth/us', views.restricted),
     path('auth/login', CustomTokenObtainPairView.as_view(), name='custom_token_obtain_pair'),
     url('users/all', views.UserProfileListCreateView.as_view(), name="all-profiles"),
+    url('signup/', views.signup, name="signup"),
+    url('user/auth', views.get_auth_user, name="auth-profile"),
+    url('user/update', views.update_user, name="update-user"),
+
+    url('dependant/update', views.update_dependant, name="update-dependant"),
+    url('dependant/single', views.get_dependant, name="get-dependant"),
+    url('approve/dependant/(?P<dep_id>\d+)', views.approve_dep, name="approve-dependant"),
     url('dependants/', views.depend, name="dependants"),
-    # url('depandants/', views.UserProfileListCreateView.as_view(), name="all-profiles"),
+    url('update-positive/(?P<dep_id>\d+)', views.elevate_dependant, name="add-positive-dependant"),
+
+    url('auth/dashboard', views.dashboard, name="dashboard"),
+    url('user/regiment', views.regiment_history, name="regiment-history"),
+
+    url('facilities/all', views.get_facilities_all, name="all-facilities"),
     # path(r'user/logout/', views.UserLogoutAllView.as_view(), name='user-logout-all'),
 ]

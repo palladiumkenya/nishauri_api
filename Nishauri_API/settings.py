@@ -34,6 +34,8 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     # 'django.contrib.admin',
     'authApp',
+    'labResults',
+    'appointments',
 
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -89,10 +91,10 @@ DATABASES = {
      'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'NiShauri',
-        'USER': 'postgres',
-        'PASSWORD': 'NC`{}?!lmn45',
-        'HOST': '197.232.36.170',   # Or an IP Address that your DB is hosted on
-        'PORT': '2210',
+        'USER': 'nishauri',
+        'PASSWORD': 'nishauri',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '5432',
     }
 }
 # DATABASES = {
