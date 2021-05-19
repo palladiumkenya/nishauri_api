@@ -1,0 +1,16 @@
+[0;1;31m●[0m gunicorn.service - gunicorn daemon
+     Loaded: loaded (/etc/systemd/system/gunicorn.service; enabled; vendor preset: enabled)
+     Active: [0;1;31mfailed[0m (Result: exit-code) since Mon 2021-05-17 11:58:52 UTC; 1s ago
+    Process: 31159 ExecStart=/var/www/nishauri_api/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/var/www/nishauri_api/Nishauri_API.sock nishauri_api.wsgi:application [0;1;31m(code=exited, status=1/FAILURE)[0m
+   Main PID: 31159 (code=exited, status=1/FAILURE)
+
+May 17 11:58:47 mhkoffice systemd[1]: Started gunicorn daemon.
+May 17 11:58:47 mhkoffice gunicorn[31159]: [2021-05-17 11:58:47 +0000] [31159] [INFO] Starting gunicorn 20.0.4
+May 17 11:58:47 mhkoffice gunicorn[31159]: [2021-05-17 11:58:47 +0000] [31159] [ERROR] Retrying in 1 second.
+May 17 11:58:48 mhkoffice gunicorn[31159]: [2021-05-17 11:58:48 +0000] [31159] [ERROR] Retrying in 1 second.
+May 17 11:58:49 mhkoffice gunicorn[31159]: [2021-05-17 11:58:49 +0000] [31159] [ERROR] Retrying in 1 second.
+May 17 11:58:50 mhkoffice gunicorn[31159]: [2021-05-17 11:58:50 +0000] [31159] [ERROR] Retrying in 1 second.
+May 17 11:58:51 mhkoffice gunicorn[31159]: [2021-05-17 11:58:51 +0000] [31159] [ERROR] Retrying in 1 second.
+May 17 11:58:52 mhkoffice gunicorn[31159]: [2021-05-17 11:58:52 +0000] [31159] [ERROR] Can't connect to /var/www/nishauri_api/Nishauri_API.sock
+May 17 11:58:52 mhkoffice systemd[1]: [0;1;39m[0;1;31m[0;1;39mgunicorn.service: Main process exited, code=exited, status=1/FAILURE[0m
+May 17 11:58:52 mhkoffice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mgunicorn.service: Failed with result 'exit-code'.[0m

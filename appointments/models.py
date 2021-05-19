@@ -7,7 +7,7 @@ class Appointments(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     appntmnt_date = models.DateField()
     app_status = models.CharField(max_length=50)
-    visit_type = models.CharField(max_length=50)
+    visit_type = models.CharField(max_length=50, null=True)
     app_type = models.CharField(max_length=50)
     owner = models.CharField(default="Personal", max_length=50)
     dependant = models.CharField(max_length=80, blank=True, null=True)

@@ -235,7 +235,7 @@ def check_appoint(value):
     try:
         user = {
             "ccc_number": value
-        }
+     	   }
 
         url = "http://ushaurinode.mhealthkenya.org/api/mlab/get/appointments"
         headers = {

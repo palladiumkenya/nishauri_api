@@ -24,6 +24,12 @@ def get_vload(request):
             dat = serializer.data
 
         else:
+            r = VLResult.objects.filter(user=request.user, result_type='1', owner='Personal').order_by('-date_sent')
+            if r.exists():
+                serializer = VLSerializer(r, many=True)
+                dat = serializer.data
+                return Response(data={"data":dat}, status=status.HTTP_200_OK)
+
             dat = {'message': 'No results for the given CCC Number were found'}
             return Response(data=dat, status=status.HTTP_200_OK)
 

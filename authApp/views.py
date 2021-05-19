@@ -266,10 +266,12 @@ def dashboard(request):
         if supr[0] == 1:
             current = "Currently Suppressed"
             try:
+                print(supr, seq, results)
                 diff_sup = datediff(results[seq[0] - 1].date_sent, date.today())
-            except IndexError:
+            except:
+                print(results[-1].date_sent)
                 if len(supr) > 0:
-                    diff_sup = datediff(results[-1], date.today())
+                    diff_sup = datediff(results[-1].date_sent, date.today())
                 else:
                     diff_sup = "0 days"
             try:
@@ -355,7 +357,7 @@ def regiment_history(request):
             if queryset.count() == 0:
                 return Response({"success": False, "data": "No regiment data"}, status=status.HTTP_200_OK)
             else:
-                serializer = RegimentSerializer(queryset)
+                serializer = RegimentSerializer(queryset[0])
                 return Response({"success": True, "previous regiments": [], "current regiment": serializer.data}, status=status.HTTP_200_OK)
         else:
             serializer = RegimentSerializer(queryset2, many=True)
