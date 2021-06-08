@@ -269,14 +269,13 @@ def dashboard(request):
                 print(supr, seq, results)
                 diff_sup = datediff(results[seq[0] - 1].date_sent, date.today())
             except:
-                print(results[-1].date_sent)
                 if len(supr) > 0:
-                    diff_sup = datediff(results[-1].date_sent, date.today())
+                    diff_sup = datediff(results.last().date_sent, date.today())
                 else:
                     diff_sup = "0 days"
             try:
                 diff_unsup = datediff(results[seq[1] - 1].date_sent, results[seq[0] - 1].date_sent)
-            except IndexError:
+            except:
                 if len(seq) == 1:
                     diff_unsup = datediff(results[seq[0]].date_sent, results[seq[0] - 1].date_sent)
                 else:
@@ -295,7 +294,7 @@ def dashboard(request):
                 diff_unsup = datediff(results[seq[0] - 1].date_sent, date.today())
             except IndexError:
                 if len(supr) > 0:
-                    diff_unsup = datediff(results[-1], date.today())
+                    diff_unsup = datediff(results.last().date_sent, date.today())
                 else:
                     diff_unsup = "0 days"
 
