@@ -5,8 +5,12 @@ from dateutil import relativedelta
 
 import requests
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count
+from django.db.models.functions import Length, TruncDate
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, views
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
@@ -398,6 +402,49 @@ def approve_dep(request, dep_id):
         print(all_dep)
         return Response({"success": True, "data": "Dependant approved {}".format(d.id)}, status=status.HTTP_201_CREATED)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def web_dash(request):
+    u = request.user
+    print(request.user.CCCNo)
+    if request.user.CCCNo == "1":
+        appointments = Appointments.objects.all()
+        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10)
+        reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values('date_joined__date').annotate(count=Count('id')).values('date_joined__date', 'count').order_by('date_joined__date')
+        reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values('last_login__date').annotate(count=Count('id')).values('last_login__date', 'count').order_by('last_login__date')
+        date = []
+        llogin = []
+        joined = []
+        for r in reg_chart:
+            r.update({'count_last': 0})
+            for a in reg_last:
+                if r['date_joined__date'] == a['last_login__date']:
+                    r.update({'count_last': a['count']})
+            date.append(r['date_joined__date'])
+            joined.append(r['count'])
+            llogin.append(r['count_last'])
+        context = {
+            # 'user': u,
+            'app_count': appointments.count(),
+            'reg_count': reg.count(),
+            'vl_count': VLResult.objects.all().count(),
+            'fac_count': Facilities.objects.all().count(),
+            'eid_count': EidResults.objects.all().count(),
+            'chart': {
+                'date': date,
+                'joined': joined,
+                'llogin': llogin
+            }
+        }
+    else:
+        return PermissionDenied()
+    return Response(context)
+
+
+@api_view(['POST'])
+def web_login(request):
+    return
 
 # class UserLogoutAllView(views.APIView):
 #     """

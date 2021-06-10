@@ -24,5 +24,7 @@ urlpatterns = [
     url('user/regiment', views.regiment_history, name="regiment-history"),
 
     url('facilities/all', views.get_facilities_all, name="all-facilities"),
+
+    url('web/dash', views.web_dash, name="web-dash"),
     # path(r'user/logout/', views.UserLogoutAllView.as_view(), name='user-logout-all'),
 ]
