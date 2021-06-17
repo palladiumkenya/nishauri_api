@@ -1,6 +1,8 @@
 import datetime
 from datetime import date
 from datetime import datetime
+from operator import itemgetter
+
 from dateutil import relativedelta
 
 import requests
@@ -412,18 +414,40 @@ def web_dash(request):
         appointments = Appointments.objects.all()
         reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10)
         reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values('date_joined__date').annotate(count=Count('id')).values('date_joined__date', 'count').order_by('date_joined__date')
-        reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values('last_login__date').annotate(count=Count('id')).values('last_login__date', 'count').order_by('last_login__date')
+        reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values('last_login__date').annotate(count1=Count('id')).values('last_login__date', 'count1', 'id').order_by('last_login__date')
         date = []
         llogin = []
         joined = []
+        all = []
         for r in reg_chart:
-            r.update({'count_last': 0})
+            r['date'] = r.pop('date_joined__date')
+        for r in reg_last:
+            r['date'] = r.pop('last_login__date')
+        # print(reg_chart, reg_last)
+        to_be_deleted = []
+        for r in reg_chart:
+            # r.update({'count_last': 0})
             for a in reg_last:
-                if r['date_joined__date'] == a['last_login__date']:
-                    r.update({'count_last': a['count']})
-            date.append(r['date_joined__date'])
-            joined.append(r['count'])
-            llogin.append(r['count_last'])
+                if r['date'] == a['date']:
+                    r.update(a)
+                    to_be_deleted.append(a['id'])
+                    print(r)
+        reg_last.exclude(id__in=to_be_deleted)
+        for r in reg_chart:
+            try:
+                r['count1']
+            except:
+                r.update({'count1': 0})
+            all.append(r)
+        for r in reg_last:
+            r.update({'count': 0})
+            all.append(r)
+        print(all)
+        # all.sort(key=itemgetter('date'), reverse=True)
+        for a in all:
+            date.append(a['date'])
+            joined.append(a['count'])
+            llogin.append(a['count1'])
         context = {
             # 'user': u,
             'app_count': appointments.count(),
