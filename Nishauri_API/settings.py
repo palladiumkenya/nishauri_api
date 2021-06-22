@@ -102,7 +102,15 @@ DATABASES = {
         'PASSWORD': 'nishauri',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '5432',
-    }
+    },
+    # 'users': {
+    #     'NAME': 'NiShauri',
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'USER': 'kap_survey',
+    #     'PASSWORD': 'mhealth@123!@#',
+    #     'HOST': '192.168.0.20',
+    #     'PORT': '3306',
+    # }
 }
 # DATABASES = {
 #     'default': {

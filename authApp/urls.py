@@ -13,6 +13,7 @@ urlpatterns = [
     url('signup/', views.signup, name="signup"),
     url('user/auth', views.get_auth_user, name="auth-profile"),
     url('user/update', views.update_user, name="update-user"),
+    url('migrate/', views.migrate_data, name="migrate db"),
 
     url('dependant/update', views.update_dependant, name="update-dependant"),
     url('dependant/single', views.get_dependant, name="get-dependant"),

@@ -153,8 +153,10 @@ def get_auth_user(request):
         serializer = UserProfileSerializer(queryset, many=True)
 
         serializer.data[0].update({"dependants": dep_serializer.data})
-        serializer.data[0].update({"initial_facility": Facilities.objects.get(mfl_code=serializer.data[0]['initial_facility']).name})
-        serializer.data[0].update({"current_facility": Facilities.objects.get(mfl_code=serializer.data[0]['current_facility']).name})
+        serializer.data[0].update(
+            {"initial_facility": Facilities.objects.get(mfl_code=serializer.data[0]['initial_facility']).name})
+        serializer.data[0].update(
+            {"current_facility": Facilities.objects.get(mfl_code=serializer.data[0]['current_facility']).name})
         serializer.data[0].update({"current_treatment": RegimentSerializer(reg).data})
         return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -363,7 +365,8 @@ def regiment_history(request):
                 return Response({"success": False, "data": "No regiment data"}, status=status.HTTP_200_OK)
             else:
                 serializer = RegimentSerializer(queryset[0])
-                return Response({"success": True, "previous regiments": [], "current regiment": serializer.data}, status=status.HTTP_200_OK)
+                return Response({"success": True, "previous regiments": [], "current regiment": serializer.data},
+                                status=status.HTTP_200_OK)
         else:
             serializer = RegimentSerializer(queryset2, many=True)
             serializer2 = RegimentSerializer(queryset.first())
@@ -373,8 +376,9 @@ def regiment_history(request):
                 s.update({'end_date': date_c})
                 date_c = s['date_started']
 
-            return Response({"success": True, "previous regiments": serializer.data, "current regiment": serializer2.data},
-                            status=status.HTTP_200_OK)
+            return Response(
+                {"success": True, "previous regiments": serializer.data, "current regiment": serializer2.data},
+                status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -413,8 +417,16 @@ def web_dash(request):
     if request.user.CCCNo == "1":
         appointments = Appointments.objects.all()
         reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10)
-        reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values('date_joined__date').annotate(count=Count('id')).values('date_joined__date', 'count').order_by('date_joined__date')
-        reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values('last_login__date').annotate(count1=Count('id')).values('last_login__date', 'count1', 'id').order_by('last_login__date')
+        reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+            'date_joined__date').annotate(count=Count('id')).values('date_joined__date', 'count').order_by(
+            'date_joined__date')
+        reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+            'last_login__date').annotate(count1=Count('id')).values('last_login__date', 'count1', 'id').order_by(
+            'last_login__date')
+        fac_reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+            'current_facility__sub_county').annotate(count=Count('current_facility__sub_county')).values(
+            'current_facility__sub_county', 'current_facility__county', 'count').order_by('current_facility__sub_county')
+        # print(fac_reg)
         date = []
         llogin = []
         joined = []
@@ -431,7 +443,7 @@ def web_dash(request):
                 if r['date'] == a['date']:
                     r.update(a)
                     to_be_deleted.append(a['id'])
-                    print(r)
+                    # print(r)
         reg_last.exclude(id__in=to_be_deleted)
         for r in reg_chart:
             try:
@@ -442,12 +454,15 @@ def web_dash(request):
         for r in reg_last:
             r.update({'count': 0})
             all.append(r)
-        print(all)
+        # print(all)
         # all.sort(key=itemgetter('date'), reverse=True)
         for a in all:
             date.append(a['date'])
             joined.append(a['count'])
             llogin.append(a['count1'])
+        county_data = []
+        for a in fac_reg:
+            county_data.append([a['current_facility__sub_county'], a['count']])
         context = {
             # 'user': u,
             'app_count': appointments.count(),
@@ -455,11 +470,13 @@ def web_dash(request):
             'vl_count': VLResult.objects.all().count(),
             'fac_count': Facilities.objects.all().count(),
             'eid_count': EidResults.objects.all().count(),
+
             'chart': {
                 'date': date,
                 'joined': joined,
                 'llogin': llogin
-            }
+            },
+            'county_data': county_data
         }
     else:
         return PermissionDenied()
@@ -469,6 +486,7 @@ def web_dash(request):
 @api_view(['POST'])
 def web_login(request):
     return
+
 
 # class UserLogoutAllView(views.APIView):
 #     """
@@ -483,3 +501,11 @@ def web_login(request):
 #         return Response(status=status.HTTP_200_OK)
 
 # TODO do approval of emancipated dependants
+
+def migrate_data(request):
+    user2 = User.objects.all().values_list('id', flat=True).using('users')
+    user = User.objects.all().exclude(id__in=user2)
+    for a in user:
+        if not User.objects.filter(id=a.id).exists().using('users'):
+            user2.create(a)
+    return Response()

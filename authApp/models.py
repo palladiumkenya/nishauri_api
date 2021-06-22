@@ -5,6 +5,16 @@ from .manager import CustomUserManager
 import uuid
 
 
+class Facilities(models.Model):
+    mfl_code = models.PositiveIntegerField(unique=True)
+    name = models.CharField(max_length=80)
+    county = models.CharField(max_length=30)
+    sub_county = models.CharField(max_length=80)
+
+    class Meta:
+        db_table = "Facilities"
+
+
 class User(AbstractUser):
     username = None
     is_staff = None
@@ -17,7 +27,7 @@ class User(AbstractUser):
     securityAnswer = models.CharField(max_length=250)
     termsAccepted = models.BooleanField(default=0)
     initial_facility = models.CharField(max_length=50, default=0)
-    current_facility = models.CharField(max_length=50, default=0)
+    current_facility = models.ForeignKey(Facilities, to_field='mfl_code', db_column='current_facility', on_delete=models.CASCADE)
     language_preference = models.CharField(max_length=20, default='English')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -33,6 +43,8 @@ class User(AbstractUser):
 
     class Meta:
         db_table = "User"
+
+
 #
 # def jwt_get_secret_key(user_model):
 #     return user_model.jwt_secret
@@ -49,16 +61,6 @@ class Dependants(models.Model):
 
     class Meta:
         db_table = "Dependants"
-
-
-class Facilities(models.Model):
-    mfl_code = models.PositiveIntegerField()
-    name = models.CharField(max_length=80)
-    county = models.CharField(max_length=30)
-    sub_county = models.CharField(max_length=80)
-
-    class Meta:
-        db_table = "Facilities"
 
 
 class Regiment(models.Model):
