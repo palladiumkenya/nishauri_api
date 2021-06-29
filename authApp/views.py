@@ -1,4 +1,5 @@
 import datetime
+import json
 from datetime import date
 from datetime import datetime
 from operator import itemgetter
@@ -20,6 +21,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from setuptools.command.upload import upload
 
 from .serializer import *
 from .models import *
@@ -98,11 +100,26 @@ def signup(request):
         a = check_ccc(request.data['CCCNo'])
         if a == False:
             return Response({"success": False, "error": "Invalid CCC number"}, status=status.HTTP_400_BAD_REQUEST)
+        if User.objects.filter(CCCNo=request.data['CCCNo']).exists():
+            return Response({"success": False, "error": "CCC number already exists. Go to login"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        chatData = {
+            "firstName": check_ccc(request.data['CCCNo'])["f_name"],
+            "lastName": check_ccc(request.data['CCCNo'])["l_name"],
+            "ccc_no": request.data['CCCNo'],
+            "type": "consumer"
+        }
+
+        response = requests.post("http://localhost:3000/users/", data=chatData)
+        print(response.json())
         print(type(check_ccc(request.data['CCCNo'])['f_name']))
         data_copy.update({"first_name": check_ccc(request.data['CCCNo'])["f_name"]})
         data_copy.update({"last_name": check_ccc(request.data['CCCNo'])["l_name"]})
         data_copy.update({"initial_facility": check_ccc(request.data['CCCNo'])["mfl_code"]})
         data_copy.update({"current_facility": check_ccc(request.data['CCCNo'])["mfl_code"]})
+        if response.json()["success"]:
+            data_copy.update({"chat_number": response.json()["user"]["_id"]})
 
         serializer = UserSerializer(data=data_copy)
         if not serializer.is_valid():
@@ -171,6 +188,148 @@ def update_user(request):
             serializer.save()
             return Response(data=serializer.data, status=status.HTTP_202_ACCEPTED)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def chat_initiate(request):
+    u = User.objects.get(id=request.user.id)
+    if not u.chat_number:
+        # Generate chat _id if not there
+        chatData = {
+            "firstName": u.first_name,
+            "lastName": u.last_name,
+            "type": "consumer"
+        }
+
+        response = requests.post("http://localhost:3000/users/", data=chatData)
+        u.chat_number = response.json()["user"]["_id"]
+        u.save()
+
+    response = requests.post("http://localhost:3000/login/{}".format(u.chat_number))
+    print(response.json())
+    if not response.json()['success']:
+        return Response({"message": "Something went wrong, Try again", 'success': False},
+                        status=status.HTTP_400_BAD_REQUEST)
+    obj, created = ChatTokens.objects.update_or_create(user_id=u.id,
+                                                       defaults={'token': response.json()['authorization']})
+    print(obj, created)
+
+    fac_user = User.objects.filter(current_facility__mfl_code=u.current_facility.mfl_code, CCCNo=3)
+    if not fac_user:
+        return Response({"message": "No facility user to chat with, Try again later", 'success': False},
+                        status=status.HTTP_200_OK)
+    userId = []
+
+    for f in fac_user:
+        if not f.chat_number:
+            chatData = {
+                "firstName": f.first_name,
+                "lastName": f.last_name,
+                "type": "support"
+            }
+            response = requests.post("http://localhost:3000/users/", data=chatData)
+            f.chat_number = response.json()["user"]["_id"]
+            f.save()
+        userId.append(f.chat_number)
+
+    chatData = json.dumps({
+        "userIds": userId,
+        "type": "consumer-to-support"
+    })
+    headers = {
+        'Authorization': 'Bearer {}'.format(obj.token),
+        'Content-Type': 'application/json'
+    }
+    r = requests.post("http://localhost:3000/room/initiate/", headers=headers, data=chatData)
+    print(r.json())
+    if json.loads(r.text)["success"]:
+        return Response(json.loads(r.text))
+    else:
+        return Response({"message": "Something went wrong, Try again", 'success': False},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def chat_rooms(request):
+    u = User.objects.get(id=request.user.id)
+    obj = ChatTokens.objects.get(user_id=u.id)
+
+    headers = {
+        'Authorization': 'Bearer {}'.format(obj.token),
+        'Content-Type': 'application/json'
+    }
+    response = requests.get("http://localhost:3000/room/rooms/", headers=headers)
+    if response.json()["success"]:
+        return Response(response.json())
+    else:
+        return Response({"message": "Something went wrong, Try again", 'success': False},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def chat_recent(request):
+    u = User.objects.get(id=request.user.id)
+    obj = ChatTokens.objects.get(user_id=u.id)
+
+    headers = {
+        'Authorization': 'Bearer {}'.format(obj.token),
+        'Content-Type': 'application/json'
+    }
+    response = requests.get("http://localhost:3000/room/", headers=headers)
+    if response.json()["success"]:
+        return Response(response.json())
+    else:
+        return Response({"message": "Something went wrong, Try again", 'success': False},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def chat_message(request):
+    u = User.objects.get(id=request.user.id)
+    obj = ChatTokens.objects.get(user_id=u.id)
+
+    headers = {
+        'Authorization': 'Bearer {}'.format(obj.token),
+        'Content-Type': 'application/json'
+    }
+    chatBody = json.dumps({
+        "messageText": request.data["messageText"]
+    })
+    response = requests.post("http://localhost:3000/room/{}/message".format(request.data["room_id"]), headers=headers, data=chatBody)
+    try:
+        if response.json()["success"] and response.json()["post"]:
+            return Response(response.json())
+        else:
+            return Response({"message": "Something went wrong, Try again", 'success': False},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({"message": "Something went wrong, Try again", 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def chat_history(request):
+    u = User.objects.get(id=request.user.id)
+    obj = ChatTokens.objects.get(user_id=u.id)
+
+    headers = {
+        'Authorization': 'Bearer {}'.format(obj.token),
+        'Content-Type': 'application/json'
+    }
+    response = requests.get("http://localhost:3000/room/{}".format(request.data["room_id"]), headers=headers)
+    try:
+        if response.json()["success"]:
+            requests.put("http://localhost:3000/room/{}/mark-read".format(request.data["room_id"]), headers=headers)
+            return Response(response.json())
+        else:
+            return Response({"message": "Something went wrong, Try again", 'success': False},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response({"message": "Something went wrong, Try again", 'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @permission_classes([IsAuthenticated])
@@ -425,7 +584,8 @@ def web_dash(request):
             'last_login__date')
         fac_reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
             'current_facility__sub_county').annotate(count=Count('current_facility__sub_county')).values(
-            'current_facility__sub_county', 'current_facility__county', 'count').order_by('current_facility__sub_county')
+            'current_facility__sub_county', 'current_facility__county', 'count').order_by(
+            'current_facility__sub_county')
         # print(fac_reg)
         date = []
         llogin = []

@@ -25,6 +25,12 @@ urlpatterns = [
     url('user/regiment', views.regiment_history, name="regiment-history"),
 
     url('facilities/all', views.get_facilities_all, name="all-facilities"),
+    # Chat
+    url('chat/initiate', views.chat_initiate, name="chat-initiate"),
+    url('chatrooms', views.chat_rooms, name="chat-rooms"),
+    url('chats/recent', views.chat_recent, name="chat-recent"),
+    url('chat/message', views.chat_message, name="chat"),
+    url('chats/room/all', views.chat_history, name="chat-history"),
 
     url('web/dash', views.web_dash, name="web-dash"),
     # path(r'user/logout/', views.UserLogoutAllView.as_view(), name='user-logout-all'),

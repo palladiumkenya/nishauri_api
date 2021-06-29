@@ -22,7 +22,7 @@ class User(AbstractUser):
     first_name = models.CharField(null=True, blank=True, max_length=250)
     last_name = models.CharField(null=True, blank=True, max_length=250)
     msisdn = models.CharField(max_length=15, unique=True)
-    CCCNo = models.CharField(max_length=15, unique=True)
+    CCCNo = models.CharField(max_length=15)
     securityQuestion = models.CharField(null=True, blank=True, max_length=150)
     securityAnswer = models.CharField(max_length=250)
     termsAccepted = models.BooleanField(default=0)
@@ -31,6 +31,7 @@ class User(AbstractUser):
     language_preference = models.CharField(max_length=20, default='English')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    chat_number = models.CharField(blank=True, max_length=250)
     # jwt_secret = models.UUIDField(default=uuid.uuid4)
 
     REQUIRED_FIELDS = ['CCCNo', 'securityQuestion', 'securityAnswer', 'termsAccepted']
@@ -45,9 +46,12 @@ class User(AbstractUser):
         db_table = "User"
 
 
-#
-# def jwt_get_secret_key(user_model):
-#     return user_model.jwt_secret
+class ChatTokens(models.Model):
+    token = models.CharField(null=True, blank=True, max_length=550)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "ChatTokens"
 
 
 class Dependants(models.Model):
