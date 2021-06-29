@@ -111,7 +111,7 @@ def signup(request):
             "type": "consumer"
         }
 
-        response = requests.post("http://localhost:3000/users/", data=chatData)
+        response = requests.post("http://localhost:5009/users/", data=chatData)
         print(response.json())
         print(type(check_ccc(request.data['CCCNo'])['f_name']))
         data_copy.update({"first_name": check_ccc(request.data['CCCNo'])["f_name"]})
@@ -202,11 +202,11 @@ def chat_initiate(request):
             "type": "consumer"
         }
 
-        response = requests.post("http://localhost:3000/users/", data=chatData)
+        response = requests.post("http://localhost:5009/users/", data=chatData)
         u.chat_number = response.json()["user"]["_id"]
         u.save()
 
-    response = requests.post("http://localhost:3000/login/{}".format(u.chat_number))
+    response = requests.post("http://localhost:5009/login/{}".format(u.chat_number))
     print(response.json())
     if not response.json()['success']:
         return Response({"message": "Something went wrong, Try again", 'success': False},
@@ -228,7 +228,7 @@ def chat_initiate(request):
                 "lastName": f.last_name,
                 "type": "support"
             }
-            response = requests.post("http://localhost:3000/users/", data=chatData)
+            response = requests.post("http://localhost:5009/users/", data=chatData)
             f.chat_number = response.json()["user"]["_id"]
             f.save()
         userId.append(f.chat_number)
@@ -241,7 +241,7 @@ def chat_initiate(request):
         'Authorization': 'Bearer {}'.format(obj.token),
         'Content-Type': 'application/json'
     }
-    r = requests.post("http://localhost:3000/room/initiate/", headers=headers, data=chatData)
+    r = requests.post("http://localhost:5009/room/initiate/", headers=headers, data=chatData)
     print(r.json())
     if json.loads(r.text)["success"]:
         return Response(json.loads(r.text))
@@ -260,7 +260,7 @@ def chat_rooms(request):
         'Authorization': 'Bearer {}'.format(obj.token),
         'Content-Type': 'application/json'
     }
-    response = requests.get("http://localhost:3000/room/rooms/", headers=headers)
+    response = requests.get("http://localhost:5009/room/rooms/", headers=headers)
     if response.json()["success"]:
         return Response(response.json())
     else:
@@ -278,7 +278,7 @@ def chat_recent(request):
         'Authorization': 'Bearer {}'.format(obj.token),
         'Content-Type': 'application/json'
     }
-    response = requests.get("http://localhost:3000/room/", headers=headers)
+    response = requests.get("http://localhost:5009/room/", headers=headers)
     if response.json()["success"]:
         return Response(response.json())
     else:
@@ -299,7 +299,7 @@ def chat_message(request):
     chatBody = json.dumps({
         "messageText": request.data["messageText"]
     })
-    response = requests.post("http://localhost:3000/room/{}/message".format(request.data["room_id"]), headers=headers, data=chatBody)
+    response = requests.post("http://localhost:5009/room/{}/message".format(request.data["room_id"]), headers=headers, data=chatBody)
     try:
         if response.json()["success"] and response.json()["post"]:
             return Response(response.json())
@@ -320,10 +320,10 @@ def chat_history(request):
         'Authorization': 'Bearer {}'.format(obj.token),
         'Content-Type': 'application/json'
     }
-    response = requests.get("http://localhost:3000/room/{}".format(request.data["room_id"]), headers=headers)
+    response = requests.get("http://localhost:5009/room/{}".format(request.data["room_id"]), headers=headers)
     try:
         if response.json()["success"]:
-            requests.put("http://localhost:3000/room/{}/mark-read".format(request.data["room_id"]), headers=headers)
+            requests.put("http://localhost:5009/room/{}/mark-read".format(request.data["room_id"]), headers=headers)
             return Response(response.json())
         else:
             return Response({"message": "Something went wrong, Try again", 'success': False},
