@@ -67,7 +67,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'last_login', 'first_name', 'last_name', 'language_preference', 'msisdn', 'CCCNo',
                   'current_facility', 'initial_facility', 'termsAccepted', 'is_active', 'date_joined',
-                  'securityQuestion', 'securityAnswer', 'user']
+                  'securityQuestion', 'securityAnswer', 'user', 'chat_number']
 
 
 class DependantSerializer(serializers.ModelSerializer):
