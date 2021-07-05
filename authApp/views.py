@@ -272,6 +272,26 @@ def chat_rooms(request):
 @api_view(['GET'])
 def chat_recent(request):
     u = User.objects.get(id=request.user.id)
+    if not u.chat_number:
+        # Generate chat _id if not there
+        chatData = {
+            "firstName": u.first_name,
+            "lastName": u.last_name,
+            "type": "consumer"
+        }
+
+        response = requests.post("http://localhost:5009/users/", data=chatData)
+        u.chat_number = response.json()["user"]["_id"]
+        u.save()
+
+    response = requests.post("http://localhost:5009/login/{}".format(u.chat_number))
+    print(response.json())
+    if not response.json()['success']:
+        return Response({"message": "Something went wrong, Try again", 'success': False},
+                        status=status.HTTP_400_BAD_REQUEST)
+    obj, created = ChatTokens.objects.update_or_create(user_id=u.id,
+                                                       defaults={'token': response.json()['authorization']})
+    print(obj, created)
     obj = ChatTokens.objects.get(user_id=u.id)
 
     headers = {
