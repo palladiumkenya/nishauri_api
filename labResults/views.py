@@ -67,7 +67,7 @@ def get_dep_vload(request):
 def get_eid(request):
     if request.method == 'GET':
         ret = []
-        d = Dependants.objects.filter(user=request.user)
+        d = Dependants.objects.filter(user=request.user, approved="Approved")
         for a in d:
             c = check_lab(a.heiNumber)
             if c == {'message': 'No results for the given CCC Number were found'}:
