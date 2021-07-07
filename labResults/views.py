@@ -82,12 +82,17 @@ def get_eid(request):
                     data.r_id = c["results"][it]["id"]
                     data.result_type = c["results"][it]["result_type"]
                     data.result_content = c["results"][it]["result_content"]
-                    data.date_collected = c["results"][it]["date_collected"]
                     data.lab_name = c["results"][it]["lab_name"]
                     try:
                         data.date_sent = datetime.strptime(c["results"][it]["created_at"].split(" ")[0], '%Y-%m-%d')
                     except AttributeError:
                         data.date_sent = None
+
+                    try:
+                        data.date_collected = datetime.strptime(c["results"][it]["date_collected"].split(" ")[0], '%Y-%m-%d')
+                    except Exception:
+                        data.date_collected = None
+
                     data.save()
             r = EidResults.objects.filter(dependant=a, result_type="2").order_by('-date_sent')
             serializer = EidSerializer(r, many=True)
@@ -95,7 +100,13 @@ def get_eid(request):
                 serializer.data[i].update({"dependant": a.first_name + " " + a.surname})
             for v in serializer.data:
                 ret.append(v)
-        return Response(data={"data": ret}, status=status.HTTP_200_OK)
+
+        r = EidResults.objects.filter(dependant__in=d, result_type="2").order_by('-date_sent')
+        print(r)
+        serializer = EidSerializer(r, many=True)
+        for i in range(len(serializer.data)):
+            serializer.data[i].update({"dependant": Dependants.objects.get(id=serializer.data[i]["dependant"]).first_name + " " + Dependants.objects.get(id=serializer.data[i]["dependant"]).surname})
+        return Response(data={"data": serializer.data}, status=status.HTTP_200_OK)
 
 
 def check_lab(value):
