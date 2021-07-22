@@ -713,9 +713,9 @@ def web_dash(request):
             # 'user': u,
             'app_count': appointments.count(),
             'reg_count': reg.count(),
-            'vl_count': VLResult.objects.all().count(),
-            'fac_count': Facilities.objects.all().count(),
-            'eid_count': EidResults.objects.all().count(),
+            'vl_count': VLResult.objects.filter(user__current_facility__in=partner_fac).count(),
+            'fac_count': PartnerFacility.objects.filter(partner_id=request.user.initial_facility).count(),
+            'eid_count': EidResults.objects.filter(dependant__user__current_facility__in=partner_fac).count(),
 
             'chart': {
                 'date': date,
