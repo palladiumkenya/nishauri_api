@@ -658,7 +658,7 @@ def web_dash(request):
             },
             'county_data': county_data
         }
-    if request.user.CCCNo == "2":
+    elif request.user.CCCNo == "2":
         partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
         appointments = Appointments.objects.filter(user__current_facility__in=partner_fac)
         reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, current_facility__in=partner_fac)
