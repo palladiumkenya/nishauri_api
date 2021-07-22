@@ -658,6 +658,72 @@ def web_dash(request):
             },
             'county_data': county_data
         }
+    if request.user.CCCNo == "2":
+        partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
+        appointments = Appointments.objects.filter(user__current_facility__in=partner_fac)
+        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, user__current_facility__in=partner_fac)
+        reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+            'date_joined__date').annotate(count=Count('id')).values('date_joined__date', 'count').order_by(
+            'date_joined__date')
+        reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+            'last_login__date').annotate(count1=Count('id')).values('last_login__date', 'count1', 'id').order_by(
+            'last_login__date')
+        fac_reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+            'current_facility__sub_county').annotate(count=Count('current_facility__sub_county')).values(
+            'current_facility__sub_county', 'current_facility__county', 'count').order_by(
+            'current_facility__sub_county')
+        # print(fac_reg)
+        date = []
+        llogin = []
+        joined = []
+        all = []
+        for r in reg_chart:
+            r['date'] = r.pop('date_joined__date')
+        for r in reg_last:
+            r['date'] = r.pop('last_login__date')
+        # print(reg_chart, reg_last)
+        to_be_deleted = []
+        for r in reg_chart:
+            # r.update({'count_last': 0})
+            for a in reg_last:
+                if r['date'] == a['date']:
+                    r.update(a)
+                    to_be_deleted.append(a['id'])
+                    # print(r)
+        reg_last.exclude(id__in=to_be_deleted)
+        for r in reg_chart:
+            try:
+                r['count1']
+            except:
+                r.update({'count1': 0})
+            all.append(r)
+        for r in reg_last:
+            r.update({'count': 0})
+            all.append(r)
+        # print(all)
+        # all.sort(key=itemgetter('date'), reverse=True)
+        for a in all:
+            date.append(a['date'])
+            joined.append(a['count'])
+            llogin.append(a['count1'])
+        county_data = []
+        for a in fac_reg:
+            county_data.append([a['current_facility__sub_county'], a['count']])
+        context = {
+            # 'user': u,
+            'app_count': appointments.count(),
+            'reg_count': reg.count(),
+            'vl_count': VLResult.objects.all().count(),
+            'fac_count': Facilities.objects.all().count(),
+            'eid_count': EidResults.objects.all().count(),
+
+            'chart': {
+                'date': date,
+                'joined': joined,
+                'llogin': llogin
+            },
+            'county_data': county_data
+        }
     else:
         return PermissionDenied()
     return Response(context)
@@ -689,3 +755,51 @@ def migrate_data(request):
         if not User.objects.filter(id=a.id).exists().using('users'):
             user2.create(a)
     return Response()
+
+
+@api_view(['POST'])
+def create_users(request):
+    if request.method == 'POST':
+        # TODO signup for dependants is active
+        data_copy = request.data.copy()
+        if not request.data['acc_level']:
+            return Response({"success": False, "error": "Invalid Access level"}, status=status.HTTP_400_BAD_REQUEST)
+
+        chatData = {
+            "firstName": request.data["f_name"],
+            "lastName": request.data["l_name"],
+            "ccc_no": request.data['acc_level'],
+            "type": "support"
+        }
+
+        response = requests.post("http://192.168.0.20:5009/users/", data=chatData)
+        print(response.json())
+        if response.json()["success"]:
+            data_copy.update({"chat_number": response.json()["user"]["_id"]})
+        data_copy.update({"CCCNo": request.data['acc_level']})
+        if request.data['acc_level'] == 3:
+            data_copy.update({"current_facility": request.data['code']})
+        if request.data['acc_level'] == 2:
+            data_copy.update({"current_facility": 0})
+            data_copy.update({"initial_facility":  request.data['code']})
+        if request.data['acc_level'] == 1:
+            data_copy.update({"current_facility": 0})
+        serializer = UserCreateAdmin(data=data_copy)
+        if not serializer.is_valid():
+            return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.initial_data['password'] != serializer.initial_data['re_password']:
+            raise serializers.ValidationError("Passwords don't match")
+        try:
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"success": True,
+                                 "data": {
+                                     "user": "User Created"
+                                 }},
+                                status=status.HTTP_201_CREATED)
+            else:
+                return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({"success": False, "error": [serializer.errors, str(e)]},
+                            status=status.HTTP_400_BAD_REQUEST)

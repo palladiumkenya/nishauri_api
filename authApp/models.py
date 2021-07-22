@@ -24,10 +24,10 @@ class User(AbstractUser):
     msisdn = models.CharField(max_length=15, unique=True)
     CCCNo = models.CharField(max_length=15)
     securityQuestion = models.CharField(null=True, blank=True, max_length=150)
-    securityAnswer = models.CharField(max_length=250)
+    securityAnswer = models.CharField(max_length=250, null=True)
     termsAccepted = models.BooleanField(default=0)
     initial_facility = models.CharField(max_length=50, default=0)
-    current_facility = models.ForeignKey(Facilities, to_field='mfl_code', db_column='current_facility', on_delete=models.CASCADE)
+    current_facility = models.ForeignKey(Facilities, to_field='mfl_code', default=12345, db_column='current_facility', on_delete=models.CASCADE)
     language_preference = models.CharField(max_length=20, default='English')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -74,3 +74,12 @@ class Regiment(models.Model):
 
     class Meta:
         db_table = "Regiment History"
+
+
+class PartnerFacility(models.Model):
+    mfl_code = models.PositiveIntegerField(unique=True)
+    partner_id = models.PositiveIntegerField(unique=True)
+
+    class Meta:
+        db_table = "PartnerFacility"
+

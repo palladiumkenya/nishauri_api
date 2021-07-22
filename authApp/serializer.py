@@ -60,6 +60,21 @@ class UserSerializer(serializers.ModelSerializer):
             return 'English'
 
 
+class UserCreateAdmin(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    def validate_password(self, value):
+        if not value:
+            raise serializers.ValidationError("Provide a password")
+        elif validate_password(value) is None:
+            value = make_password(value)
+            return value
+        else:
+            validate_password(value)
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
 

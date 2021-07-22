@@ -33,5 +33,6 @@ urlpatterns = [
     url('chats/room/all', views.chat_history, name="chat-history"),
 
     url('web/dash', views.web_dash, name="web-dash"),
+    url('user/create', views.create_users, name="user-create-admin"),
     # path(r'user/logout/', views.UserLogoutAllView.as_view(), name='user-logout-all'),
 ]
