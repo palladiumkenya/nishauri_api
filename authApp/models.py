@@ -77,8 +77,8 @@ class Regiment(models.Model):
 
 
 class PartnerFacility(models.Model):
-    mfl_code = models.PositiveIntegerField(unique=True)
-    partner_id = models.PositiveIntegerField(unique=True)
+    mfl_code = models.PositiveIntegerField()
+    partner_id = models.PositiveIntegerField()
 
     class Meta:
         db_table = "PartnerFacility"
