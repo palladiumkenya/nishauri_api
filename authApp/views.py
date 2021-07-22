@@ -661,14 +661,14 @@ def web_dash(request):
     if request.user.CCCNo == "2":
         partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
         appointments = Appointments.objects.filter(user__current_facility__in=partner_fac)
-        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, user__current_facility__in=partner_fac)
-        reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, current_facility__in=partner_fac)
+        reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10,  current_facility__in=partner_fac).values(
             'date_joined__date').annotate(count=Count('id')).values('date_joined__date', 'count').order_by(
             'date_joined__date')
-        reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+        reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10,  current_facility__in=partner_fac).values(
             'last_login__date').annotate(count1=Count('id')).values('last_login__date', 'count1', 'id').order_by(
             'last_login__date')
-        fac_reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+        fac_reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10,  current_facility__in=partner_fac).values(
             'current_facility__sub_county').annotate(count=Count('current_facility__sub_county')).values(
             'current_facility__sub_county', 'current_facility__county', 'count').order_by(
             'current_facility__sub_county')
