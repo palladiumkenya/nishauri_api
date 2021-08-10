@@ -729,6 +729,37 @@ def web_dash(request):
     return Response(context)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def clients_list(request):
+    u = request.user
+    if request.user.CCCNo == "1":
+        appointments = Appointments.objects.all()
+        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10)
+
+
+        context = {
+            'appointments': AppointmentsSerializer(appointments, many=True).data,
+            'clients': ClientsSerializer(reg, many=True).data,
+            'vl_count': VLResult.objects.all().count(),
+            'fac_count': Facilities.objects.all().count(),
+            'eid_count': EidResults.objects.all().count(),
+
+        }
+    elif request.user.CCCNo == "2":
+        partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
+        appointments = Appointments.objects.filter(user__current_facility__in=partner_fac)
+        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, current_facility__in=partner_fac)
+
+        context = {
+            'appointments': AppointmentsSerializer(appointments, many=True).data,
+            'clients': ClientsSerializer(reg, many=True).data,
+        }
+    else:
+        return PermissionDenied()
+    return Response(context)
+
+
 @api_view(['POST'])
 def web_login(request):
     return

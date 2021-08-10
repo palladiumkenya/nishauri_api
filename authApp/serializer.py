@@ -6,6 +6,8 @@ from dateutil import relativedelta
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
+
+from appointments.models import Appointments
 from .models import *
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from rest_framework import serializers
@@ -143,3 +145,23 @@ class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facilities
         fields = '__all__'
+
+
+class AppointmentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointments
+        fields = '__all__'
+
+
+class ClientsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'CCCNo', 'current_facility', 'msisdn']
+
+    def to_representation(self, value):
+        data = super().to_representation(value)
+
+        code = data["current_facility"]
+        data.update({'current_facility': Facilities.objects.get(mfl_code=code).name})
+
+        return data
