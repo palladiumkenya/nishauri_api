@@ -35,5 +35,7 @@ urlpatterns = [
     url('web/dash', views.web_dash, name="web-dash"),
     url('user/create', views.create_users, name="user-create-admin"),
     url('web/clients/reg', views.clients_list, name="clients-list"),
+    url('web/partner/list', views.partners_list, name="partners-list"),
+    url('web/partner/ushauri', views.partners_ushauri, name="partners-list"),
     # path(r'user/logout/', views.UserLogoutAllView.as_view(), name='user-logout-all'),
 ]

@@ -747,6 +747,7 @@ def clients_list(request):
 
         }
     elif request.user.CCCNo == "2":
+
         partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
         appointments = Appointments.objects.filter(user__current_facility__in=partner_fac)
         reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, current_facility__in=partner_fac)
@@ -757,6 +758,45 @@ def clients_list(request):
         }
     else:
         return PermissionDenied()
+    return Response(context)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def partners_list(request):
+    if request.user.CCCNo == "1":
+        appointments = Appointments.objects.all()
+        partners = User.objects.filter(CCCNo="2")
+
+        context = {
+            # 'appointments': AppointmentsSerializer(appointments, many=True).data,
+            'partners': ClientsSerializer(partners, many=True).data,
+            'vl_count': VLResult.objects.all().count(),
+            'fac_count': Facilities.objects.all().count(),
+            'eid_count': EidResults.objects.all().count(),
+
+        }
+    else:
+        return PermissionDenied()
+    return Response(context)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def partners_ushauri(request):
+    if request.user.CCCNo == "1":
+        url = "http://localhost:5500/clients/partner"
+
+        payload = {}
+        headers = {}
+
+        response = requests.request("GET", url, headers=headers, data=payload)
+        # print(response.json)
+        context = {
+            'partners': response.json(),
+        }
+    else:
+        raise PermissionDenied()
     return Response(context)
 
 
