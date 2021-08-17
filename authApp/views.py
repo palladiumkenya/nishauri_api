@@ -65,7 +65,7 @@ class UserProfileListCreateView(ListCreateAPIView):
 def depend(request):
     if request.method == 'POST':
         data_copy = request.data.copy()
-        data_copy.update({"user": request.user.id})
+        data_copy.update({"user": request.user.id, "status": "Pending"})
         serializer = DependantSerializer(data=data_copy)
         serializer.user = request.user
         print(serializer.is_valid())
