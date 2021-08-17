@@ -787,10 +787,7 @@ def partners_ushauri(request):
     if request.user.CCCNo == "1":
         url = "https://ushaurinode.mhealthkenya.co.ke/clients/partner"
 
-        payload = {}
-        headers = {}
-
-        response = requests.request("GET", url, headers=headers, data=payload)
+        response = requests.request("GET", url)
         # print(response.json)
         context = {
             'partners': response.json(),
@@ -831,7 +828,6 @@ def migrate_data(request):
 @api_view(['POST'])
 def create_users(request):
     if request.method == 'POST':
-        # TODO signup for dependants is active
         data_copy = request.data.copy()
         if not request.data['acc_level']:
             return Response({"success": False, "error": "Invalid Access level"}, status=status.HTTP_400_BAD_REQUEST)
@@ -843,23 +839,23 @@ def create_users(request):
             "type": "support"
         }
 
-        response = requests.post("http://192.168.0.20:5009/users/", data=chatData)
+        response = requests.post("http://197.232.82.136:5009/users/", data=chatData)
         print(response.json())
         if response.json()["success"]:
             data_copy.update({"chat_number": response.json()["user"]["_id"]})
         data_copy.update({"CCCNo": request.data['acc_level']})
         if request.data['acc_level'] == 3:
             data_copy.update({"current_facility": request.data['code']})
-        if request.data['acc_level'] == 2:
-            data_copy.update({"current_facility": 0})
-            data_copy.update({"initial_facility":  request.data['code']})
+        if int(request.data['acc_level']) == 2:
+            data_copy.update({"first_name": request.data["f_name"]})
+            data_copy.update({"last_name":  request.data["l_name"]})
         if request.data['acc_level'] == 1:
             data_copy.update({"current_facility": 0})
         serializer = UserCreateAdmin(data=data_copy)
         if not serializer.is_valid():
             return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        if serializer.initial_data['password'] != serializer.initial_data['re_password']:
-            raise serializers.ValidationError("Passwords don't match")
+        # if serializer.initial_data['password'] != serializer.initial_data['re_password']:
+        #     raise serializers.ValidationError("Passwords don't match")
         try:
             if serializer.is_valid():
                 serializer.save()
