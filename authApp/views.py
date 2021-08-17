@@ -674,7 +674,7 @@ def web_dash(request):
             'current_facility__sub_county')
         # print(fac_reg)
         date = []
-        llogin = []
+        # llogin = []
         joined = []
         all = []
         for r in reg_chart:
@@ -700,12 +700,11 @@ def web_dash(request):
         for r in reg_last:
             r.update({'count': 0})
             all.append(r)
-        # print(all)
-        # all.sort(key=itemgetter('date'), reverse=True)
+
         for a in all:
             date.append(a['date'])
             joined.append(a['count'])
-            llogin.append(a['count1'])
+            # llogin.append(a['count1'])
         county_data = []
         for a in fac_reg:
             county_data.append([a['current_facility__sub_county'], a['count']])
@@ -720,7 +719,7 @@ def web_dash(request):
             'chart': {
                 'date': date,
                 'joined': joined,
-                'llogin': llogin
+                # 'llogin': llogin
             },
             'county_data': county_data
         }
