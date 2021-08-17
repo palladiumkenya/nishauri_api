@@ -839,7 +839,7 @@ def create_users(request):
             "type": "support"
         }
 
-        response = requests.post("http://197.232.82.136:5009/users/", data=chatData)
+        response = requests.post("http://192.168.0.20:5009/users/", data=chatData)
         print(response.json())
         if response.json()["success"]:
             data_copy.update({"chat_number": response.json()["user"]["_id"]})
