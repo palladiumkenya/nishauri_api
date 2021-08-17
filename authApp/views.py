@@ -785,7 +785,7 @@ def partners_list(request):
 @permission_classes([IsAuthenticated])
 def partners_ushauri(request):
     if request.user.CCCNo == "1":
-        url = "http://localhost:5500/clients/partner"
+        url = "https://ushaurinode.mhealthkenya.co.ke/clients/partner"
 
         payload = {}
         headers = {}
