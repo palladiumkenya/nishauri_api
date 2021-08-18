@@ -659,16 +659,22 @@ def web_dash(request):
             'county_data': county_data
         }
     elif request.user.CCCNo == "2":
-        partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
-        appointments = Appointments.objects.filter(user__current_facility__in=partner_fac)
-        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, current_facility__in=partner_fac)
-        reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10,  current_facility__in=partner_fac).values(
+        url = "https://ushaurinode.mhealthkenya.co.ke/clients/partner/facilities/{}".format(request.user.initial_facility)
+
+        response = requests.request("GET", url)
+        # print(response.json)
+
+        mfl_list = response.json()
+        # partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
+        appointments = Appointments.objects.filter(user__current_facility__in=mfl_list)
+        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, current_facility__in=mfl_list)
+        reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10,  current_facility__in=mfl_list).values(
             'date_joined__date').annotate(count=Count('id')).values('date_joined__date', 'count').order_by(
             'date_joined__date')
         # reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10,  current_facility__in=partner_fac).values(
         #     'last_login__date').annotate(count1=Count('id')).values('last_login__date', 'count1', 'id').order_by(
         #     'last_login__date')
-        fac_reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10,  current_facility__in=partner_fac).values(
+        fac_reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10,  current_facility__in=mfl_list).values(
             'current_facility__sub_county').annotate(count=Count('current_facility__sub_county')).values(
             'current_facility__sub_county', 'current_facility__county', 'count').order_by(
             'current_facility__sub_county')
@@ -712,9 +718,9 @@ def web_dash(request):
             # 'user': u,
             'app_count': appointments.count(),
             'reg_count': reg.count(),
-            'vl_count': VLResult.objects.filter(user__current_facility__in=partner_fac).count(),
-            'fac_count': PartnerFacility.objects.filter(partner_id=request.user.initial_facility).count(),
-            'eid_count': EidResults.objects.filter(dependant__user__current_facility__in=partner_fac).count(),
+            'vl_count': VLResult.objects.filter(user__current_facility__in=mfl_list).count(),
+            'fac_count': len(mfl_list),
+            'eid_count': EidResults.objects.filter(dependant__user__current_facility__in=mfl_list).count(),
 
             'chart': {
                 'date': date,
