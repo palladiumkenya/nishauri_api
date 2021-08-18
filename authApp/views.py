@@ -665,7 +665,6 @@ def web_dash(request):
         url = "https://ushaurinode.mhealthkenya.co.ke/clients/partner/facilities/{}".format(request.user.initial_facility)
 
         response = requests.request("GET", url)
-        # print(response.json)
 
         mfl_list = response.json()
         # partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
@@ -755,10 +754,14 @@ def clients_list(request):
 
         }
     elif request.user.CCCNo == "2":
+        url = "https://ushaurinode.mhealthkenya.co.ke/clients/partner/facilities/{}".format(request.user.initial_facility)
 
-        partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
-        appointments = Appointments.objects.filter(user__current_facility__in=partner_fac)
-        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, current_facility__in=partner_fac)
+        response = requests.request("GET", url)
+
+        mfl_list = response.json()
+        # partner_fac = PartnerFacility.objects.filter(partner_id=request.user.initial_facility).values_list('mfl_code', flat=True)
+        appointments = Appointments.objects.filter(user__current_facility__in=mfl_list)
+        reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10, current_facility__in=mfl_list)
 
         context = {
             'appointments': AppointmentsSerializer(appointments, many=True).data,
