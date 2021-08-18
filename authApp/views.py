@@ -599,9 +599,9 @@ def web_dash(request):
         reg_chart = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
             'date_joined__date').annotate(count=Count('id')).values('date_joined__date', 'count').order_by(
             'date_joined__date')
-        reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
-            'last_login__date').annotate(count1=Count('id')).values('last_login__date', 'count1', 'id').order_by(
-            'last_login__date')
+        # reg_last = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
+        #     'last_login__date').annotate(count1=Count('id')).values('last_login__date', 'count1', 'id').order_by(
+        #     'last_login__date')
         fac_reg = User.objects.annotate(text_len=Length('CCCNo')).filter(text_len=10).values(
             'current_facility__sub_county').annotate(count=Count('current_facility__sub_county')).values(
             'current_facility__sub_county', 'current_facility__county', 'count').order_by(
@@ -613,27 +613,27 @@ def web_dash(request):
         all = []
         for r in reg_chart:
             r['date'] = r.pop('date_joined__date')
-        for r in reg_last:
-            r['date'] = r.pop('last_login__date')
+        # for r in reg_last:
+        #     r['date'] = r.pop('last_login__date')
         # print(reg_chart, reg_last)
         to_be_deleted = []
-        for r in reg_chart:
-            # r.update({'count_last': 0})
-            for a in reg_last:
-                if r['date'] == a['date']:
-                    r.update(a)
-                    to_be_deleted.append(a['id'])
+        # for r in reg_chart:
+        #     # r.update({'count_last': 0})
+        #     for a in reg_last:
+        #         if r['date'] == a['date']:
+        #             r.update(a)
+        #             to_be_deleted.append(a['id'])
                     # print(r)
-        reg_last.exclude(id__in=to_be_deleted)
+        # reg_last.exclude(id__in=to_be_deleted)
         for r in reg_chart:
             try:
                 r['count1']
             except:
                 r.update({'count1': 0})
             all.append(r)
-        for r in reg_last:
-            r.update({'count': 0})
-            all.append(r)
+        # for r in reg_last:
+        #     r.update({'count': 0})
+        #     all.append(r)
         # print(all)
         # all.sort(key=itemgetter('date'), reverse=True)
         for a in all:
@@ -654,7 +654,7 @@ def web_dash(request):
             'chart': {
                 'date': date,
                 'joined': joined,
-                'llogin': llogin
+                # 'llogin': llogin
             },
             'county_data': county_data
         }
