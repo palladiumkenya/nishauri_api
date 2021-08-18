@@ -170,8 +170,11 @@ def get_auth_user(request):
         serializer = UserProfileSerializer(queryset, many=True)
 
         serializer.data[0].update({"dependants": dep_serializer.data})
-        serializer.data[0].update(
-            {"initial_facility": Facilities.objects.get(mfl_code=serializer.data[0]['initial_facility']).name})
+        try:
+            serializer.data[0].update(
+                {"initial_facility": Facilities.objects.get(mfl_code=serializer.data[0]['initial_facility']).name})
+        except Facilities.DoesNotExist:
+            print("partner")
         serializer.data[0].update(
             {"current_facility": Facilities.objects.get(mfl_code=serializer.data[0]['current_facility']).name})
         serializer.data[0].update({"current_treatment": RegimentSerializer(reg).data})
