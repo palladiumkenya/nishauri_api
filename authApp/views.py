@@ -59,6 +59,23 @@ class UserProfileListCreateView(ListCreateAPIView):
         serializer.save(user=user)
 
 
+def ushauri_dep(d):
+    url = "https://ushaurinode.mhealthkenya.co.ke/api/mlab/get/pmtct/dependants"
+
+    payload = json.dumps({
+        "ccc_number": d
+    })
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+    if response.json()['success']:
+        return response.json()['message']
+    else:
+        return False
+
+
 @csrf_exempt
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -78,6 +95,15 @@ def depend(request):
         except Exception as e:
             return Response({"success": False, "error": 'something went wrong'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == "GET":
+        dependants = ushauri_dep(request.user.CCCNo)
+        if dependants is not False:
+            print(dependants)
+            for d in dependants:
+                if not Dependants.objects.filter(user=request.user.id, heiNumber=d['hei_no']).exists():
+                    newdependant = Dependants.objects.create(heiNumber=d['hei_no'], dob=d['hei_dob'], approved='Approved',
+                                                            first_name=d['hei_first_name'], surname=d['hei_last_name'],
+                                                            user_id=request.user.id)
+                    newdependant.save()
         queryset = Dependants.objects.filter(user=request.user.id)
         serializer = DependantSerializer(queryset, many=True)
         today = date.today()
