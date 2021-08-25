@@ -524,9 +524,10 @@ def regiment_history(request):
             else:
                 data_copy.update({"date_started": datetime.strptime(str(c['art_date'].split('T')[0]), '%Y-%m-%d')})
         else:
-            if datetime.strptime(data_copy['date_started'], '%Y-%m-%d').date() <= queryset.first().date_started:
-                raise serializers.ValidationError('Date cannot be before that previous start date {}'.format(
-                    datetime.strptime(data_copy['date_started'], '%Y-%m-%d')))
+            if queryset.exists():
+                if datetime.strptime(data_copy['date_started'], '%Y-%m-%d').date() <= queryset.first().date_started:
+                    raise serializers.ValidationError('Date cannot be before that previous start date {}'.format(
+                        datetime.strptime(data_copy['date_started'], '%Y-%m-%d')))
 
             # TODO add art date
         serializer = RegimentSerializer(data=data_copy)
