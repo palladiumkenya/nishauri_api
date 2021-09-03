@@ -73,7 +73,10 @@ def upcoming_appointment(request):
                 data.app_status = c["client"]["appointments"][it]["app_status"]
                 data.visit_type = c["client"]["appointments"][it]["visit_type"]
                 data.app_type = c["client"]["appointments"][it]["app_type"]["name"]
-                data.save()
+                try:
+                    data.save()
+                except :
+                    pass
         n_list = []
         for r in Appointments.objects.filter(user=request.user):
             if datetime.strptime(str(date.today()), '%Y-%m-%d') <= datetime.strptime(str(r.appntmnt_date), '%Y-%m-%d'):

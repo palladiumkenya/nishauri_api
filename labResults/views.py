@@ -12,28 +12,29 @@ from authApp.models import *
 from .serializer import *
 
 
+@api_view(['GET'])
+def saveLabs(request):
+    users = User.objects.all()
+    for user in users:
+        c = check_lab(user.CCCNo)
+        if c != {'message': 'No results for the given CCC Number were found'}:
+            saveSyncVl(c, user, 'Personal')
+    return
+
+
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_vload(request):
     if request.method == 'GET':
         c = check_lab(request.user.CCCNo)
-        if c != {'message': 'No results for the given CCC Number were found'}:
-            save_vl(c, request, 'Personal')
-            r = VLResult.objects.filter(user=request.user, result_type='1', owner='Personal').order_by('-date_sent')
+        r = VLResult.objects.filter(user=request.user, result_type='1', owner='Personal').order_by('-date_sent')
+        if r.exists():
             serializer = VLSerializer(r, many=True)
             dat = serializer.data
+            return Response(data={"data":dat}, status=status.HTTP_200_OK)
 
-        else:
-            r = VLResult.objects.filter(user=request.user, result_type='1', owner='Personal').order_by('-date_sent')
-            if r.exists():
-                serializer = VLSerializer(r, many=True)
-                dat = serializer.data
-                return Response(data={"data":dat}, status=status.HTTP_200_OK)
-
-            dat = {'message': 'No results for the given CCC Number were found'}
-            return Response(data=dat, status=status.HTTP_200_OK)
-
-        return Response(data={"data":dat}, status=status.HTTP_200_OK)
+        dat = {'message': 'No results for the given CCC Number were found'}
+        return Response(data=dat, status=status.HTTP_200_OK)
 
 
 @permission_classes([IsAuthenticated])
@@ -121,6 +122,7 @@ def check_lab(value):
             'Accept': 'application/json'
         }
         response = requests.post(url, data=user, json=headers, verify=False)
+        print(response.json())
         return response.json()
     except ConnectionError as e:
         print(e)
@@ -145,6 +147,30 @@ def save_vl(c, a, o):
                 data.result_content = c["results"][it]["result_content"][:-9]
             try:
                 data.date_sent = datetime.strptime(c["results"][it]["created_at"].split(" ")[0], '%Y-%m-%d')
+            except AttributeError:
+                data.date_sent = None
+            data.save()
+
+
+def saveSyncVl(result, user, o):
+    for it in range(len(result["results"])):
+        r = VLResult.objects.filter(r_id=result["results"][it]["id"])
+        if r.count() == 0:
+            data = VLResult()
+            data.user = user
+            data.r_id = result["results"][it]["id"]
+            data.result_type = result["results"][it]["result_type"]
+            data.date_collected = result["results"][it]["date_collected"]
+            data.lab_name = result["results"][it]["lab_name"]
+            data.owner = o
+            if o == 'Dependant':
+                data.CCCNo = result["results"][it]['client_id']
+            try:
+                data.result_content = int(result["results"][it]["result_content"])
+            except ValueError:
+                data.result_content = result["results"][it]["result_content"][:-9]
+            try:
+                data.date_sent = datetime.strptime(result["results"][it]["created_at"].split(" ")[0], '%Y-%m-%d')
             except AttributeError:
                 data.date_sent = None
             data.save()
