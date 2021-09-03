@@ -26,7 +26,6 @@ def saveLabs(request):
 @api_view(['GET'])
 def get_vload(request):
     if request.method == 'GET':
-        c = check_lab(request.user.CCCNo)
         r = VLResult.objects.filter(user=request.user, result_type='1', owner='Personal').order_by('-date_sent')
         if r.exists():
             serializer = VLSerializer(r, many=True)
