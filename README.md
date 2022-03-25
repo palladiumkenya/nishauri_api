@@ -53,7 +53,7 @@ To run the tests, `cd` into the directory where `manage.py` is:
 ```
 
 ## Docker set up
-    git clone https://github.com/palladiumkenya/nishauri_api.git
+    git clone https://github.com/palladiumkenya/nishauri_api.git(clone cicd branch)
     cd nishauri_api
     docker-compose up -d
     You can now access the server at http://localhost:9210
