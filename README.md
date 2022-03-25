@@ -45,6 +45,12 @@ And navigate to `http://127.0.0.1:8000/api .
 
 ALL SET.
 
+## Docker set up
+    git clone https://github.com/palladiumkenya/nishauri_api.git(clone cicd branch)
+    cd nishauri_api
+    docker-compose up -d
+    You can now access the server at http://localhost:9210
+
 ## Tests
 
 To run the tests, `cd` into the directory where `manage.py` is:
