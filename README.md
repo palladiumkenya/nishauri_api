@@ -46,7 +46,7 @@ And navigate to `http://127.0.0.1:8000/api .
 ALL SET.
 
 ## Docker set up
-    git clone https://github.com/palladiumkenya/nishauri_api.git(clone cicd branch)
+    git clone https://github.com/palladiumkenya/nishauri_api.git
     cd nishauri_api
     docker-compose up -d
     You can now access the server at http://localhost:9210
