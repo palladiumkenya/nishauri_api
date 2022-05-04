@@ -115,8 +115,12 @@ def check_lab(value):
             "ccc_number": value
         }
 
+<<<<<<< HEAD
         
         url = "https://mlab.kenyahmis.org/api/ushauri/get/results"
+=======
+        url = "https://mlab.kenyahmis.org/api/get/results"
+>>>>>>> 228261f528c9c867b4f35260a99e373d60faac42
         headers = {
             'content-type': "application/json",
             'Accept': 'application/json'
