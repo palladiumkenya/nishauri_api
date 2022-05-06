@@ -7,9 +7,9 @@ jobs:
       name: Deploy
       runs-on: ubuntu-latest
       steps:
-          -name: excecuting remote connection
-          uses: appleboy/ssh-action@master
-          with:
+      - name: excecuting remote connection
+        uses: appleboy/ssh-action@master
+        with:
             host: ${{ secrets.HOST }}
             username: ${{ secrets.USERNAME }}
             key : ${{ secrets.CICD_SECRET }}
