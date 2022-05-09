@@ -17,7 +17,7 @@ jobs:
             script: |
                   git config --global --add safe.directory /apps/github-workflows/mhealth-apps/nishauri_api/      
                   cd /apps/github-workflows/mhealth-apps/nishauri_api/
-                  git pull origin main
+                  git pull origin master
                   git status
                   cp /apps/dockerApps/nishauri_api-ssl/python.dockerfile /apps/github-workflows/mhealth-apps/nishauri_api/
                   cp /apps/dockerApps/nishauri_api-ssl/nginx.dockerfile /apps/github-workflows/mhealth-apps/nishauri_api/
