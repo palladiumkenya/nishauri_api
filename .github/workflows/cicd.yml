@@ -24,5 +24,6 @@ jobs:
                   cp /apps/dockerApps/nishauri_api-ssl/entrypoint.sh /apps/github-workflows/mhealth-apps/nishauri_api/
                   cp /apps/dockerApps/nishauri_api-ssl/requirements.txt /apps/github-workflows/mhealth-apps/nishauri_api/
                   cp -r /apps/dockerApps/nishauri_api-ssl/docker /apps/github-workflows/mhealth-apps/nishauri_api/
+                  cp /apps/dockerApps/nishauri_api-ssl/Nishauri_API/settings.py /apps/github-workflows/mhealth-apps/nishauri_api/Nishauri_API/
                   docker-compose down
                   docker-compose up -d
