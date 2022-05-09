@@ -1,7 +1,7 @@
 name: Deploying ushauri_api test instance.
 on:
   push:
-    branches: [cicd]
+    branches: [master]
 jobs:
   build:
       name: Deploy
@@ -27,4 +27,5 @@ jobs:
                   cp -r /apps/dockerApps/nishauri_api-ssl/docker /apps/github-workflows/mhealth-apps/nishauri_api/
                   cp /apps/dockerApps/nishauri_api-ssl/Nishauri_API/settings.py /apps/github-workflows/mhealth-apps/nishauri_api/Nishauri_API/
                   docker-compose down
-                  docker-compose up -d
+                  docker-compose rm -f
+                  docker-compose up -d --build
