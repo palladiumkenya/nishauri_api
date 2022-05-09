@@ -15,8 +15,8 @@ jobs:
             key : ${{ secrets.CICD_SECRET }}
             port : ${{ secrets.PORT }}
             script: |
-                  git config --global --add safe.directory /apps/github-workflows/mhealth-apps/nishauri/      
-                  cd /apps/github-workflows/mhealth-apps/nishauri/
+                  git config --global --add safe.directory /apps/github-workflows/mhealth-apps/nishauri_api/      
+                  cd /apps/github-workflows/mhealth-apps/nishauri_api/
                   git pull origin main
                   git status
                   cp /apps/dockerApps/nishauri_api-ssl/python.dockerfile /apps/github-workflows/mhealth-apps/nishauri_api/
