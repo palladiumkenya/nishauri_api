@@ -19,16 +19,6 @@ services:
       - ../scripts/nishauri.sql:/docker-entrypoint-initdb.d/nishauri.sql
     networks:
       - development
-  postgresql-setup:
-    image: postgres:13.1-alpine
-    depends_on:
-        - database
-        
-    restart: "no"
-    volumes:
-      - '../scripts:/scripts'
-    
-    entrypoint: "psql -U test -d nishauri -h nishauridb -f /scripts/nishauri.sql"
   python:
     build:
       context: .
