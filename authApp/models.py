@@ -83,3 +83,10 @@ class PartnerFacility(models.Model):
     class Meta:
         db_table = "PartnerFacility"
 
+class OTP(models.Model):
+    otp = models.CharField(max_length=6)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    class Meta:
+        db_table = "OTP"
+

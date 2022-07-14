@@ -22,6 +22,9 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from setuptools.command.upload import upload
+import africastalking
+import string
+import random
 
 from .serializer import *
 from .models import *
@@ -74,6 +77,21 @@ def ushauri_dep(d):
         return response.json()['message']
     else:
         return False
+
+
+def send_otp(msisdn):
+    letters = string.digits
+    otp = ''.join(random.choice(letters) for i in range(5))
+    
+    # Initialize SDK
+    username = "YOUR_USERNAME"
+    api_key = "YOUR_API_KEY"
+    africastalking.initialize(username, api_key)
+    
+    sms = africastalking.SMS
+    # Use the service synchronously
+    response = sms.send("Your Nishauri OTP is: {}. Do not share.".format(otp), ["{}".format(msisdn)])
+    print(response)
 
 
 @csrf_exempt
