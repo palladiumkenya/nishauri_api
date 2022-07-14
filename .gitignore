@@ -122,3 +122,4 @@ venv
 /*/migrations/
 /authApp/migrations/
 env/
+secrets.json
