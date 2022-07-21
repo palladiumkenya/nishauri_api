@@ -20,6 +20,7 @@ jobs:
                   sudo mkdir nishauri_api
                   sudo chown -R cicd2:cicd2 nishauri_api
                   git config --global --add safe.directory /apps/github-workflows/mhealth-apps/nishauri_api
+                  ls
                   git clone -b master https://github.com/palladiumkenya/nishauri_api.git nishauri_api
                   git status
                   cp /apps/dockerApps/nishauri_api-ssl/python.dockerfile /apps/github-workflows/mhealth-apps/nishauri_api/
