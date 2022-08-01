@@ -63,7 +63,7 @@ class UserProfileListCreateView(ListCreateAPIView):
 
 
 def ushauri_dep(d):
-    url = "https://ushaurinode.mhealthkenya.co.ke/api/mlab/get/pmtct/dependants"
+    url = "http://127.0.0.1:5000/api/mlab/get/pmtct/dependants"
 
     payload = json.dumps({
         "ccc_number": d
@@ -155,15 +155,15 @@ def signup(request):
             "type": "consumer"
         }
 
-        response = requests.post("http://localhost:5009/users/", data=chatData)
-        print(response.json())
+        #response = requests.post("http://localhost:5009/users/", data=chatData)
+        #print(response.json())
         print(type(check_ccc(request.data['CCCNo'])['f_name']))
         data_copy.update({"first_name": check_ccc(request.data['CCCNo'])["f_name"]})
         data_copy.update({"last_name": check_ccc(request.data['CCCNo'])["l_name"]})
         data_copy.update({"initial_facility": check_ccc(request.data['CCCNo'])["mfl_code"]})
         data_copy.update({"current_facility": check_ccc(request.data['CCCNo'])["mfl_code"]})
-        if response.json()["success"]:
-            data_copy.update({"chat_number": response.json()["user"]["_id"]})
+        #if response.json()["success"]:
+        #    data_copy.update({"chat_number": response.json()["user"]["_id"]})
 
         serializer = UserSerializer(data=data_copy)
         if not serializer.is_valid():
@@ -191,7 +191,7 @@ def check_ccc(value):
         "ccc_number": value
     }
 
-    url = "http://ushaurinode.mhealthkenya.org/api/mlab/get/one/client"
+    url = "http://127.0.0.1:5000/api/mlab/get/one/client"
     headers = {
         'content-type': "application/json",
         'Accept': 'application/json'
@@ -707,7 +707,7 @@ def web_dash(request):
             'county_data': county_data
         }
     elif request.user.CCCNo == "2":
-        url = "https://ushaurinode.mhealthkenya.co.ke/clients/partner/facilities/{}".format(request.user.initial_facility)
+        url = "http://127.0.0.1:5000/clients/partner/facilities/{}".format(request.user.initial_facility)
 
         response = requests.request("GET", url)
 
@@ -799,7 +799,7 @@ def clients_list(request):
 
         }
     elif request.user.CCCNo == "2":
-        url = "https://ushaurinode.mhealthkenya.co.ke/clients/partner/facilities/{}".format(request.user.initial_facility)
+        url = "http://127.0.0.1:5000/clients/partner/facilities/{}".format(request.user.initial_facility)
 
         response = requests.request("GET", url)
 
@@ -841,7 +841,7 @@ def partners_list(request):
 @permission_classes([IsAuthenticated])
 def partners_ushauri(request):
     if request.user.CCCNo == "1":
-        url = "https://ushaurinode.mhealthkenya.co.ke/clients/partner"
+        url = "http://127.0.0.1:5000/clients/partner"
 
         response = requests.request("GET", url)
         # print(response.json)
