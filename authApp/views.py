@@ -83,6 +83,9 @@ def send_otp(msisdn):
     letters = string.digits
     otp = ''.join(random.choice(letters) for i in range(5))
     
+    if msisdn.startswith('0'):
+        msisdn = '254' + msisdn[1:]
+    
     # Initialize SDK
     username = "xxxxxxxxxx"
     api_key = "xxxxxxxxxx"
