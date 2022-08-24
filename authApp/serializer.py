@@ -43,7 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = {
             "ccc_number": value
         }
-        url = "http://ushaurinode.mhealthkenya.org/api/mlab/get/one/client"
+        url = "http://127.0.0.1:5000/api/mlab/get/one/client"
         headers = {
             'content-type': "application/json",
             'Accept': 'application/json'
