@@ -84,7 +84,6 @@ def send_otp(msisdn):
     otp = ''.join(random.choice(letters) for i in range(5))
     
     if msisdn.startswith('0'):
-        msisdn = '254' + msisdn[1:]
     
     # Initialize SDK
     username = "xxxxxxxxxx"
