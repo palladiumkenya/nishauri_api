@@ -11,6 +11,7 @@ urlpatterns = [
     path('auth/login', CustomTokenObtainPairView.as_view(), name='custom_token_obtain_pair'),
     url('users/all', views.UserProfileListCreateView.as_view(), name="all-profiles"),
     url('signup/', views.signup, name="signup"),
+    url('verify/', views.verify_otp, name="verify-otp"),
     url('user/auth', views.get_auth_user, name="auth-profile"),
     url('user/update', views.update_user, name="update-user"),
     url('migrate/', views.migrate_data, name="migrate db"),

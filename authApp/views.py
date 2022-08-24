@@ -84,14 +84,32 @@ def send_otp(msisdn):
     otp = ''.join(random.choice(letters) for i in range(5))
     
     # Initialize SDK
-    username = "YOUR_USERNAME"
-    api_key = "YOUR_API_KEY"
+    username = "xxxxxxxxxx"
+    api_key = "xxxxxxxxxx"
     africastalking.initialize(username, api_key)
-    
     sms = africastalking.SMS
     # Use the service synchronously
     response = sms.send("Your Nishauri OTP is: {}. Do not share.".format(otp), ["{}".format(msisdn)])
+    print(User.objects.get(msisdn=msisdn))
+    OTP.objects.create(user=User.objects.get(msisdn=msisdn), otp=otp)
+    
     print(response)
+    return
+
+
+@csrf_exempt
+@api_view(['POST'])
+def verify_otp(request):
+    data = data_copy = request.data.copy()
+    otps = OTP.objects.filter(otp=data['otp'], user=User.objects.get(msisdn=data['msisdn']))
+    
+    if otps.exists():
+        otps.delete()
+        return Response(data={"success": True, }, status=status.HTTP_200_OK)
+    else:
+        return Response(data={"success": False, }, status=status.HTTP_401_UNAUTHORIZED)
+    
+    return True
 
 
 @csrf_exempt
@@ -155,15 +173,15 @@ def signup(request):
             "type": "consumer"
         }
 
-        response = requests.post("http://localhost:5009/users/", data=chatData)
-        print(response.json())
+        # response = requests.post("http://localhost:5009/users/", data=chatData)
+        # print(response.json())
         print(type(check_ccc(request.data['CCCNo'])['f_name']))
         data_copy.update({"first_name": check_ccc(request.data['CCCNo'])["f_name"]})
         data_copy.update({"last_name": check_ccc(request.data['CCCNo'])["l_name"]})
         data_copy.update({"initial_facility": check_ccc(request.data['CCCNo'])["mfl_code"]})
         data_copy.update({"current_facility": check_ccc(request.data['CCCNo'])["mfl_code"]})
-        if response.json()["success"]:
-            data_copy.update({"chat_number": response.json()["user"]["_id"]})
+        # if response.json()["success"]:
+        #     data_copy.update({"chat_number": response.json()["user"]["_id"]})
 
         serializer = UserSerializer(data=data_copy)
         if not serializer.is_valid():
@@ -173,10 +191,12 @@ def signup(request):
         try:
             if serializer.is_valid():
                 serializer.save()
+                send_otp(request.data['msisdn'])
                 return Response({"success": True,
-                                 "data": {
-                                     "user": "User Created"
-                                 }},
+                                "data": {
+                                    "user": "User Created",
+                                    "message": "Verify OTP"
+                                }},
                                 status=status.HTTP_201_CREATED)
             else:
                 return Response({"success": False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -191,7 +211,7 @@ def check_ccc(value):
         "ccc_number": value
     }
 
-    url = "http://ushaurinode.mhealthkenya.org/api/mlab/get/one/client"
+    url = "https://ushaurinode.mhealthkenya.co.ke/api/mlab/get/one/client"
     headers = {
         'content-type': "application/json",
         'Accept': 'application/json'

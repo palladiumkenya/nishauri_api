@@ -1,5 +1,8 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
+from django.contrib.auth import get_user_model
+import authApp.models as models
 
 
 class CustomUserManager(BaseUserManager):
@@ -14,7 +17,7 @@ class CustomUserManager(BaseUserManager):
         if not msisdn:
             raise ValueError(_('The Phone Number must be set'))
         email = self.normalize_email(msisdn)
-        user = self.model(msisdn=msisdn, **extra_fields)
+        user = self.model(msisdn=msisdn, is_active=False, **extra_fields)
         user.set_password(password)
         user.save()
         return user
@@ -32,3 +35,17 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_('Superuser must have is_superuser=True.'))
         return self.create_user(msisdn, password, **extra_fields)
+    
+
+
+class UsernameOrEmailBackend(object):
+    def authenticate(self, msisdn=None, password=None, **kwargs):
+        try:
+            # Try to fetch the user by searching the username or email field
+            user = User.objects.get(Q(username=msisdn)|Q(msisdn=msisdn))
+            if user.check_password(password):
+                return user
+        except User.DoesNotExist:
+            # Run the default password hasher once to reduce the timing
+            # difference between an existing and a non-existing user (#20760).
+            User().set_password(password)
