@@ -82,8 +82,9 @@ def ushauri_dep(d):
 def send_otp(msisdn):
     letters = string.digits
     otp = ''.join(random.choice(letters) for i in range(5))
-    
+    msisdn2 = msisdn
     if msisdn.startswith('0'):
+        msisdn2 = '+254' + msisdn[1:]
     
     # Initialize SDK
     username = "xxxxxxxxxx"
@@ -91,7 +92,7 @@ def send_otp(msisdn):
     africastalking.initialize(username, api_key)
     sms = africastalking.SMS
     # Use the service synchronously
-    response = sms.send("Your Nishauri OTP is: {}. Do not share.".format(otp), ["{}".format(msisdn)])
+    response = sms.send("Your Nishauri OTP is: {}. Do not share.".format(otp), ["{}".format(msisdn2)])
     print(User.objects.get(msisdn=msisdn))
     OTP.objects.create(user=User.objects.get(msisdn=msisdn), otp=otp)
     
