@@ -923,10 +923,10 @@ def create_users(request):
             "type": "support"
         }
 
-        response = requests.post("http://192.168.0.20:5009/users/", data=chatData)
-        print(response.json())
-        if response.json()["success"]:
-            data_copy.update({"chat_number": response.json()["user"]["_id"]})
+        #response = requests.post("http://192.168.0.20:5009/users/", data=chatData)
+        #print(response.json())
+        #if response.json()["success"]:
+        #    data_copy.update({"chat_number": response.json()["user"]["_id"]})
         data_copy.update({"CCCNo": request.data['acc_level']})
         if request.data['acc_level'] == 3:
             data_copy.update({"current_facility": request.data['code']})
